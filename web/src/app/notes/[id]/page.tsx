@@ -1,5 +1,6 @@
 import { getCurrentUser } from "@/lib/auth";
 import { getNote } from "@/lib/notes-queries";
+import { getFolders } from "@/lib/folders-queries";
 import { redirect, notFound } from "next/navigation";
 import { NoteEditor } from "@/components/note-editor";
 
@@ -14,7 +15,9 @@ export async function generateMetadata({
 
   const note = await getNote(id, user.id);
   return {
-    title: note ? `${note.title || "Untitled"} - MarkdownNotes` : "Note - MarkdownNotes",
+    title: note
+      ? `${note.title || "Untitled"} - MarkdownNotes`
+      : "Note - MarkdownNotes",
   };
 }
 
@@ -33,6 +36,8 @@ export default async function NoteEditorPage({
   // If trashed, redirect to trash
   if (note.trashedAt) redirect("/notes/trash");
 
+  const folders = await getFolders(user.id);
+
   return (
     <NoteEditor
       note={{
@@ -43,7 +48,9 @@ export default async function NoteEditorPage({
         isFavorite: note.isFavorite,
         wordCount: note.wordCount,
         updatedAt: note.updatedAt,
+        folderId: note.folderId,
       }}
+      folders={folders.map((f) => ({ id: f.id, name: f.name }))}
     />
   );
 }

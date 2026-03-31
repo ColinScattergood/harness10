@@ -12,18 +12,23 @@ interface GetNotesOptions {
   filter?: "favorites";
   sort?: "updated" | "created" | "title";
   search?: string;
+  folderId?: string;
 }
 
 export async function getNotes(
   userId: string,
   options: GetNotesOptions = {}
 ): Promise<NoteListItem[]> {
-  const { filter, sort = "updated", search } = options;
+  const { filter, sort = "updated", search, folderId } = options;
 
   const conditions = [eq(notes.userId, userId), isNull(notes.trashedAt)];
 
   if (filter === "favorites") {
     conditions.push(eq(notes.isFavorite, true));
+  }
+
+  if (folderId) {
+    conditions.push(eq(notes.folderId, folderId));
   }
 
   if (search && search.trim()) {

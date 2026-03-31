@@ -10,10 +10,20 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { createNoteAction, togglePinAction, toggleFavoriteAction, deleteNoteAction } from "@/lib/notes-actions";
+import {
+  createNoteAction,
+  togglePinAction,
+  toggleFavoriteAction,
+  deleteNoteAction,
+} from "@/lib/notes-actions";
+import { moveNoteToFolderAction } from "@/lib/folders-actions";
 import type { NoteListItem } from "@/lib/notes-queries";
 
 interface NotesListProps {
@@ -21,6 +31,8 @@ interface NotesListProps {
   filter?: string;
   sort: string;
   search: string;
+  folderId?: string;
+  folderName?: string;
 }
 
 function formatDate(date: Date): string {
@@ -53,7 +65,14 @@ function getPreview(body: string, maxLength = 120): string {
   return stripped.slice(0, maxLength).trimEnd() + "...";
 }
 
-export function NotesList({ notes, filter, sort, search }: NotesListProps) {
+export function NotesList({
+  notes,
+  filter,
+  sort,
+  search,
+  folderId,
+  folderName,
+}: NotesListProps) {
   const router = useRouter();
   const searchParamsHook = useSearchParams();
   const [searchValue, setSearchValue] = useState(search);
@@ -118,15 +137,20 @@ export function NotesList({ notes, filter, sort, search }: NotesListProps) {
     router.refresh();
   };
 
-  const sortLabel = sort === "created" ? "Created" : sort === "title" ? "Title" : "Modified";
+  const sortLabel =
+    sort === "created" ? "Created" : sort === "title" ? "Title" : "Modified";
+
+  const title = folderName
+    ? folderName
+    : filter === "favorites"
+      ? "Favorites"
+      : "All Notes";
 
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between border-b px-4 py-3 md:px-6">
-        <h1 className="text-lg font-semibold">
-          {filter === "favorites" ? "Favorites" : "All Notes"}
-        </h1>
+        <h1 className="text-lg font-semibold">{title}</h1>
         <form action={handleCreateNote}>
           <Button size="sm" type="submit">
             <svg
@@ -179,9 +203,7 @@ export function NotesList({ notes, filter, sort, search }: NotesListProps) {
           />
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger
-            className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shrink-0"
-          >
+          <DropdownMenuTrigger className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md border border-input bg-background px-3 py-1.5 text-sm font-medium shadow-xs transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shrink-0">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               width="14"
@@ -244,15 +266,19 @@ export function NotesList({ notes, filter, sort, search }: NotesListProps) {
                   {search
                     ? "No matching notes"
                     : filter === "favorites"
-                    ? "No favorites yet"
-                    : "No notes yet"}
+                      ? "No favorites yet"
+                      : folderName
+                        ? "No notes in this folder"
+                        : "No notes yet"}
                 </h2>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {search
                     ? "Try a different search term."
                     : filter === "favorites"
-                    ? "Star a note to see it here."
-                    : "Create your first note to get started."}
+                      ? "Star a note to see it here."
+                      : folderName
+                        ? "Move a note into this folder to see it here."
+                        : "Create your first note to get started."}
                 </p>
               </div>
             </Card>
@@ -313,7 +339,7 @@ export function NotesList({ notes, filter, sort, search }: NotesListProps) {
                   )}
                   <p className="mt-1 text-xs text-muted-foreground/70">
                     {formatDate(note.updatedAt)}
-                    {note.wordCount > 0 && ` · ${note.wordCount} words`}
+                    {note.wordCount > 0 && ` \u00b7 ${note.wordCount} words`}
                   </p>
                 </div>
 
@@ -323,7 +349,9 @@ export function NotesList({ notes, filter, sort, search }: NotesListProps) {
                     onClick={(e) => handlePin(e, note.id)}
                     className={cn(
                       "rounded p-1.5 transition-colors hover:bg-accent",
-                      note.isPinned ? "text-primary" : "text-muted-foreground"
+                      note.isPinned
+                        ? "text-primary"
+                        : "text-muted-foreground"
                     )}
                     aria-label={note.isPinned ? "Unpin note" : "Pin note"}
                   >
@@ -346,9 +374,15 @@ export function NotesList({ notes, filter, sort, search }: NotesListProps) {
                     onClick={(e) => handleFavorite(e, note.id)}
                     className={cn(
                       "rounded p-1.5 transition-colors hover:bg-accent",
-                      note.isFavorite ? "text-yellow-500" : "text-muted-foreground"
+                      note.isFavorite
+                        ? "text-yellow-500"
+                        : "text-muted-foreground"
                     )}
-                    aria-label={note.isFavorite ? "Remove from favorites" : "Add to favorites"}
+                    aria-label={
+                      note.isFavorite
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
                   >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
