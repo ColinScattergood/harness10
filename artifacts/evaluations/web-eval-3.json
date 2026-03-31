@@ -1,0 +1,125 @@
+{
+  "platform": "web",
+  "sprint": 3,
+  "attempt": 1,
+  "timestamp": "2026-03-31T18:10:00Z",
+  "scores": {
+    "functionality": 8,
+    "design_quality": 8,
+    "craft": 7,
+    "originality": 7
+  },
+  "average": 7.5,
+  "pass": true,
+  "done_conditions_results": [
+    {
+      "id": "DC-018",
+      "description": "User can create a new folder and see it in the sidebar",
+      "pass": true,
+      "notes": "Plus button next to 'FOLDERS' section header opens a 'Create Folder' dialog. Entering a name and clicking Create immediately shows the new folder in the sidebar. Clean dialog design with Cancel/Create buttons."
+    },
+    {
+      "id": "DC-019",
+      "description": "User can rename and delete a folder",
+      "pass": true,
+      "notes": "Three-dot menu icon appears on hover for each folder in the sidebar, with Rename and Delete options. Rename opens a dialog pre-filled with current name. Both operations update the sidebar immediately."
+    },
+    {
+      "id": "DC-020",
+      "description": "User can move a note into a folder and see it listed under that folder",
+      "pass": true,
+      "notes": "Folder icon button in editor toolbar (aria-label='Move to folder') opens a dropdown listing all folders plus 'No Folder' option with a checkmark on the current selection. After selecting a folder, clicking the folder name in the sidebar correctly filters to show only that folder's notes. The header changes to the folder name."
+    },
+    {
+      "id": "DC-021",
+      "description": "Deleting a folder moves its notes to the root level (not to trash)",
+      "pass": true,
+      "notes": "Delete folder shows an AlertDialog confirmation that explicitly states 'Notes inside this folder will be moved to the root level, not to trash.' After deletion, the note previously in the folder is confirmed visible in 'All Notes' at root level. Folder disappears from sidebar, showing 'No folders yet' text."
+    },
+    {
+      "id": "DC-022",
+      "description": "User can export a note as a .md file",
+      "pass": true,
+      "notes": "Download icon button (aria-label='Export as markdown file') in editor toolbar triggers a browser download. File is named '{note title}.md' (confirmed: 'Sprint 3 Test Note.md'). Contains title as H1 header followed by body content."
+    },
+    {
+      "id": "DC-023",
+      "description": "Markdown toolbar buttons insert correct formatting syntax (bold, italic, heading, link, code, list)",
+      "pass": true,
+      "notes": "Six toolbar buttons present below main toolbar: Bold (B), Italic (I), Heading (H), Link (chain icon), Code (<>), List (list icon). Each has title and aria-label attributes. Tested: Bold wraps selected text with **, Italic inserts *, Heading inserts ##, Link inserts [text](url), Code inserts backticks, List inserts -. Bold correctly wraps selected text rather than inserting at cursor."
+    },
+    {
+      "id": "DC-024",
+      "description": "Web keyboard shortcuts work: Cmd/Ctrl+N creates a new note, Cmd/Ctrl+Shift+P toggles preview",
+      "pass": true,
+      "notes": "Ctrl+N from notes list navigates to a new note editor (new UUID in URL, 'Untitled' title, empty body). Ctrl+Shift+P toggles split-pane preview showing rendered markdown on the right side. Preview button in top-right also toggles and shows active state when preview is open."
+    },
+    {
+      "id": "DC-025",
+      "description": "iOS swipe gestures work: swipe to pin, swipe to delete",
+      "pass": true,
+      "notes": "Skipped — iOS-only done condition, not applicable to web platform."
+    }
+  ],
+  "issues": [
+    {
+      "severity": "low",
+      "category": "craft",
+      "description": "Username in sidebar bottom-left is truncated — shows 'est V3' instead of 'Test V3'. The first character is cut off, likely overlapping with the avatar/icon element to its left.",
+      "screenshot": "artifacts/screenshots/web-s3-v3-preview.png",
+      "fix_suggestion": "Add left padding or margin to the username text element in the sidebar footer, or ensure the avatar icon does not overlap the text. Check the flex layout of the sidebar footer for proper spacing."
+    },
+    {
+      "severity": "low",
+      "category": "craft",
+      "description": "The editor toolbar has two visual rows — top row (back, pin, favorite, move, export, delete) uses only icons, while the 'Preview' button at top-right uses text + icon. The markdown formatting toolbar below uses icons with tooltips. This creates a mixed button treatment paradigm.",
+      "screenshot": "artifacts/screenshots/web-s3-v2-note-editor.png",
+      "fix_suggestion": "Consider making the Preview toggle consistent with other toolbar items — either all icon-only with tooltips, or add text labels to key actions. Alternatively, keep as-is since the Preview toggle is arguably a mode switch rather than an action."
+    },
+    {
+      "severity": "low",
+      "category": "craft",
+      "description": "The word count shows '0 words · 1 min read' for a brand new empty note. The '1 min read' for zero words is slightly misleading — should show '0 min read' or omit reading time for empty notes.",
+      "screenshot": "artifacts/screenshots/web-s3-v3-ctrl-n.png",
+      "fix_suggestion": "In the word count / reading time calculation, return '0 min read' or '<1 min read' when word count is 0, or hide the reading time entirely for empty notes."
+    },
+    {
+      "severity": "low",
+      "category": "design_quality",
+      "description": "The preview pane has no visible divider line between editor and preview columns. While the contrast between monospace editor (left, darker) and rendered preview (right) provides some visual separation, a subtle border or divider would improve clarity.",
+      "screenshot": "artifacts/screenshots/web-s3-v3-preview.png",
+      "fix_suggestion": "Add a subtle 1px border-right to the editor column or a vertical divider between editor and preview panes, using the zinc-700 border color from the design spec."
+    },
+    {
+      "severity": "medium",
+      "category": "craft",
+      "description": "The editor title field shows 'Untitled' as the default value rather than as a placeholder. When a user clicks on it, they must manually select all and delete before typing. It should use a placeholder attribute instead so the field starts empty.",
+      "screenshot": "artifacts/screenshots/web-s3-v3-ctrl-n.png",
+      "fix_suggestion": "Change the title input from having a default value of 'Untitled' to using placeholder='Untitled'. This way the input starts empty and the user can immediately type their title without clearing."
+    }
+  ],
+  "console_errors": [],
+  "network_errors": [],
+  "screenshots_taken": [
+    "artifacts/screenshots/web-s3-landing.png",
+    "artifacts/screenshots/web-s3-signin.png",
+    "artifacts/screenshots/web-s3-notes-dashboard.png",
+    "artifacts/screenshots/web-s3-folder-create-dialog.png",
+    "artifacts/screenshots/web-s3-folder-created.png",
+    "artifacts/screenshots/web-s3-v2-note-editor.png",
+    "artifacts/screenshots/web-s3-v2-toolbar-test.png",
+    "artifacts/screenshots/web-s3-v3-move-dropdown.png",
+    "artifacts/screenshots/web-s3-v3-folder-filter.png",
+    "artifacts/screenshots/web-s3-v3-folder-menu.png",
+    "artifacts/screenshots/web-s3-v3-folder-renamed.png",
+    "artifacts/screenshots/web-s3-v3-folder-delete-dialog.png",
+    "artifacts/screenshots/web-s3-v3-after-folder-delete.png",
+    "artifacts/screenshots/web-s3-v3-notes-root.png",
+    "artifacts/screenshots/web-s3-v3-ctrl-n.png",
+    "artifacts/screenshots/web-s3-v3-preview.png",
+    "artifacts/screenshots/web-s3-mobile-notes-list.png",
+    "artifacts/screenshots/web-s3-mobile-landing.png",
+    "artifacts/screenshots/web-s3-settings-page.png",
+    "artifacts/screenshots/web-s3-trash-page.png"
+  ]
+}
