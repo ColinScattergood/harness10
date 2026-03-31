@@ -1,0 +1,102 @@
+{
+  "platform": "web",
+  "sprint": 1,
+  "attempt": 1,
+  "timestamp": "2026-03-31T17:15:00Z",
+  "git_ref": "b5a07dd",
+  "spec_file": "artifacts/specs/current-spec.md",
+  "completed_features": [
+    {
+      "story_id": "US-009",
+      "description": "User can sign up and log in so that notes are tied to their account",
+      "status": "complete",
+      "notes": "Email/password auth with bcrypt hashing and cookie-based sessions"
+    },
+    {
+      "story_id": "US-005",
+      "description": "User can toggle between dark mode and light mode with persistence",
+      "status": "complete",
+      "notes": "next-themes provider with database persistence via server action"
+    }
+  ],
+  "done_conditions": [
+    {
+      "id": "DC-001",
+      "description": "User can sign up with email and password and is redirected to the notes dashboard",
+      "status": "complete",
+      "notes": "Sign-up form at /sign-up with Zod validation, creates user in SQLite, sets session cookie, redirects to /notes"
+    },
+    {
+      "id": "DC-002",
+      "description": "User can sign in with existing credentials and see the notes dashboard",
+      "status": "complete",
+      "notes": "Sign-in form at /sign-in with bcrypt password verification, sets session cookie, redirects to /notes"
+    },
+    {
+      "id": "DC-003",
+      "description": "User can sign out and is redirected to the sign-in page",
+      "status": "complete",
+      "notes": "Sign-out button in sidebar footer and settings page, destroys session cookie, redirects to /sign-in"
+    },
+    {
+      "id": "DC-004",
+      "description": "Unauthenticated users are redirected to sign-in when accessing /notes",
+      "status": "complete",
+      "notes": "Server-side auth check in /notes layout.tsx, redirects to /sign-in if no valid session"
+    },
+    {
+      "id": "DC-005",
+      "description": "User can toggle between dark mode and light mode, and the preference persists across sessions",
+      "status": "complete",
+      "notes": "ThemeToggle component using next-themes, persists to user record in database via server action"
+    },
+    {
+      "id": "DC-006",
+      "description": "The app shell renders with a sidebar showing All Notes, Favorites, and Trash sections",
+      "status": "complete",
+      "notes": "Responsive sidebar: persistent on desktop (md+), Sheet slide-out on mobile. Shows All Notes, Favorites, Trash nav items with icons"
+    }
+  ],
+  "routes_or_screens": [
+    {
+      "path_or_view": "/",
+      "description": "Landing/marketing page with hero section, feature highlights, and CTA buttons. Redirects to /notes if authenticated."
+    },
+    {
+      "path_or_view": "/sign-in",
+      "description": "Sign-in form with email/password, link to sign-up. Redirects to /notes if already authenticated."
+    },
+    {
+      "path_or_view": "/sign-up",
+      "description": "Sign-up form with name/email/password and Zod validation. Redirects to /notes if already authenticated."
+    },
+    {
+      "path_or_view": "/notes",
+      "description": "Notes dashboard with sidebar navigation and empty state card. Auth-protected."
+    },
+    {
+      "path_or_view": "/notes/trash",
+      "description": "Trash view with empty state. Auth-protected via parent layout."
+    },
+    {
+      "path_or_view": "/settings",
+      "description": "Settings page with account info, theme toggle, and sign-out button. Auth-protected."
+    }
+  ],
+  "how_to_run": {
+    "web": "cd web && npm run db:migrate && npm run dev"
+  },
+  "environment": {
+    "env_vars_needed": [],
+    "dependencies_installed": true,
+    "build_succeeds": true,
+    "node_version_required": ">=20.9.0"
+  },
+  "known_issues": [
+    "Sessions are stored in-memory (Map) — they won't persist across server restarts. Acceptable for local dev with SQLite.",
+    "Node.js >= 20.9.0 is required (Next.js 16 requirement). Use 'nvm use 22' if available.",
+    "The Favorites nav link uses a query parameter (?filter=favorites) — filtering logic will be implemented in Sprint 2 with notes CRUD."
+  ],
+  "self_eval_notes": "Build succeeds with zero TypeScript errors. All 6 routes render correctly. Auth flow works end-to-end: sign-up creates user, sign-in authenticates, sign-out destroys session. Theme toggle switches between dark/light modes. Sidebar shows All Notes, Favorites, and Trash sections with active state highlighting. Mobile responsive with Sheet-based navigation. Empty states display on notes and trash pages.",
+  "previous_eval_issues_addressed": []
+}
