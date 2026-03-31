@@ -1,0 +1,167 @@
+{
+  "platform": "web",
+  "sprint": 2,
+  "attempt": 1,
+  "timestamp": "2026-03-31T22:00:00Z",
+  "scores": {
+    "functionality": 8,
+    "design_quality": 7,
+    "craft": 6,
+    "originality": 7
+  },
+  "average": 7.0,
+  "pass": true,
+  "done_conditions_results": [
+    {
+      "id": "DC-007",
+      "description": "User can create a new note with a title and markdown body",
+      "pass": true,
+      "notes": "New Note button in header creates a note via server action and redirects to /notes/[id] editor. Title input and markdown textarea are available with clear placeholders. Works correctly."
+    },
+    {
+      "id": "DC-008",
+      "description": "User can edit an existing note and see changes auto-saved",
+      "pass": true,
+      "notes": "1-second debounced auto-save works correctly. Save status shows 'Saving...' during save and 'Saved' after completion. Last saved timestamp displayed in footer. Cmd+S forces immediate save. No issues found."
+    },
+    {
+      "id": "DC-009",
+      "description": "Markdown preview renders headings, bold, italic, code blocks, links, lists, and images correctly",
+      "pass": true,
+      "notes": "Preview toggle button works. Split-pane layout on desktop (editor left, preview right). All markdown elements render correctly: h1, h2, h3, bold, italic, code blocks with syntax highlighting background, links, unordered lists, ordered lists. Uses react-markdown with remark-gfm and Tailwind typography prose classes. On mobile, preview replaces editor (correct behavior per spec)."
+    },
+    {
+      "id": "DC-010",
+      "description": "User can delete a note (soft-delete) and see it appear in the Trash view",
+      "pass": true,
+      "notes": "Delete button in editor toolbar soft-deletes the note and redirects to /notes. Note appears in /notes/trash with '30 days left' indicator. Hover action delete button also available in notes list."
+    },
+    {
+      "id": "DC-011",
+      "description": "User can restore a note from Trash",
+      "pass": true,
+      "notes": "Restore button in trash list works correctly. Note reappears in main notes list after restore. Trash shows empty state when all notes restored."
+    },
+    {
+      "id": "DC-012",
+      "description": "User can permanently delete a note from Trash",
+      "pass": true,
+      "notes": "Delete button in trash triggers AlertDialog confirmation with 'Permanently delete note?' title and destructive action button. Note is permanently removed after confirmation. Good UX with confirmation dialog."
+    },
+    {
+      "id": "DC-013",
+      "description": "User can pin a note and it appears at the top of the notes list",
+      "pass": true,
+      "notes": "Pin toggle button in editor toolbar works. Pinned notes show filled pin icon and appear at top of notes list via ORDER BY is_pinned DESC. Pin icon indicator (aria-label='Pinned') shows in list. Hover action in list also allows pinning."
+    },
+    {
+      "id": "DC-014",
+      "description": "User can favorite a note and filter to show only favorites",
+      "pass": true,
+      "notes": "Favorite toggle in editor works (yellow star icon). Star indicator shows in notes list. Clicking 'Favorites' in sidebar filters to only favorited notes. Title changes to 'Favorites'. Favorites empty state shows 'No favorites yet' with helpful text."
+    },
+    {
+      "id": "DC-015",
+      "description": "User can search notes by title or content and see matching results",
+      "pass": true,
+      "notes": "Search input in notes list header filters notes in real-time. Searching 'unicorn' correctly returns only the matching note. Empty search results show 'No matching notes' with 'Try a different search term.' message. Search clears correctly."
+    },
+    {
+      "id": "DC-016",
+      "description": "User can sort notes by date modified, date created, or title",
+      "pass": true,
+      "notes": "Sort dropdown with three options (Date Modified, Date Created, Title) works correctly. Default is 'Modified'. Sort label updates in the dropdown trigger. Sorting updates URL params and re-renders list server-side."
+    },
+    {
+      "id": "DC-017",
+      "description": "Word count and reading time are displayed for the current note",
+      "pass": true,
+      "notes": "Footer bar in editor shows '62 words · 1 min read' (for test content). Updates live as content changes. Word count also shown in notes list items ('62 words'). Reading time calculated at 200 wpm with minimum 1 min."
+    }
+  ],
+  "issues": [
+    {
+      "severity": "medium",
+      "category": "craft",
+      "description": "Delete button in note editor has NO confirmation dialog — clicking the trash icon immediately soft-deletes the note and redirects to /notes. This is inconsistent with the permanent delete in trash which properly uses an AlertDialog confirmation. A user could accidentally delete a note with one misclick.",
+      "screenshot": "artifacts/screenshots/web-s2-04-note-with-content.png",
+      "fix_suggestion": "Add an AlertDialog confirmation to the delete button in the NoteEditor toolbar, similar to the one used in TrashList for permanent delete. Or at minimum show a toast notification with an 'Undo' action after soft-delete."
+    },
+    {
+      "severity": "medium",
+      "category": "craft",
+      "description": "Search in notes list uses URL parameter updates which cause full page navigation/re-render on every keystroke. The search input loses focus briefly during the transition and the entire page flickers. This is a noticeable UX degradation compared to client-side filtering.",
+      "screenshot": "artifacts/screenshots/web-s2-30-search.png",
+      "fix_suggestion": "Implement client-side search filtering with debouncing, or use React useTransition with startTransition to avoid blocking the UI during search parameter updates. Consider keeping the URL params for shareability but debouncing the URL update more aggressively (300-500ms instead of immediate)."
+    },
+    {
+      "severity": "low",
+      "category": "craft",
+      "description": "The note editor textarea has no line numbers, no syntax highlighting for markdown, and no visual distinction between markdown syntax characters and content text. The raw markdown editing experience is quite basic compared to the polished preview.",
+      "screenshot": "artifacts/screenshots/web-s2-04-note-with-content.png",
+      "fix_suggestion": "Consider using a lightweight markdown editor like CodeMirror with markdown mode for syntax highlighting in the editor pane, or at minimum style the markdown syntax characters differently. This is a Sprint 3 polish item but worth noting."
+    },
+    {
+      "severity": "low",
+      "category": "design_quality",
+      "description": "The settings page has no sidebar navigation — it renders as a standalone page with just a 'Back to Notes' link at top. This breaks the consistent layout pattern used in /notes, /notes/trash, and /notes/[id] which all have the sidebar visible. Settings feels disconnected from the rest of the app.",
+      "screenshot": "artifacts/screenshots/web-s2-48-settings.png",
+      "fix_suggestion": "Wrap the Settings page inside the notes layout so the sidebar is visible, or add a Settings link in the sidebar. Currently the settings page uses its own layout without the AppSidebar component."
+    },
+    {
+      "severity": "low",
+      "category": "craft",
+      "description": "On mobile, the user avatar/initial circle in the bottom-left corner overlaps with the word count footer in the editor view. The avatar sits at a fixed position that conflicts with the editor footer bar.",
+      "screenshot": "artifacts/screenshots/web-s2-40-mobile-editor.png",
+      "fix_suggestion": "Either hide the floating avatar in the editor view on mobile, or ensure the footer bar has proper z-index and the avatar doesn't overlap with it. Consider using position: sticky for the footer."
+    },
+    {
+      "severity": "low",
+      "category": "craft",
+      "description": "The note list hover actions (pin, favorite, delete) are only visible on hover, making them completely inaccessible on touch devices. Mobile users must open the note editor to pin, favorite, or delete a note — there are no swipe actions or long-press context menus on the note list.",
+      "screenshot": "artifacts/screenshots/web-s2-42-mobile-list-with-note.png",
+      "fix_suggestion": "On mobile/touch viewports, either always show the action buttons, or implement swipe-to-reveal actions, or add a long-press context menu for note actions. The hover-only pattern is a desktop-only interaction."
+    },
+    {
+      "severity": "low",
+      "category": "design_quality",
+      "description": "The preview pane title ('Test Note Sprint 2') duplicates the title input above it when in split-pane mode. The title appears both in the editor's title input and as an h1 in the preview pane, creating visual redundancy.",
+      "screenshot": "artifacts/screenshots/web-s2-06-preview.png",
+      "fix_suggestion": "Remove the duplicate title rendering from the preview pane when the editor is visible (desktop split view). Only show it when the preview replaces the editor entirely (mobile view)."
+    }
+  ],
+  "console_errors": [],
+  "network_errors": [],
+  "screenshots_taken": [
+    "artifacts/screenshots/web-s2-01-signup.png",
+    "artifacts/screenshots/web-s2-02-notes-empty.png",
+    "artifacts/screenshots/web-s2-03-new-note.png",
+    "artifacts/screenshots/web-s2-04-note-with-content.png",
+    "artifacts/screenshots/web-s2-05-auto-saved.png",
+    "artifacts/screenshots/web-s2-06-preview.png",
+    "artifacts/screenshots/web-s2-07-word-count.png",
+    "artifacts/screenshots/web-s2-08-pinned.png",
+    "artifacts/screenshots/web-s2-09-favorited.png",
+    "artifacts/screenshots/web-s2-10-notes-list-with-note.png",
+    "artifacts/screenshots/web-s2-11-two-notes.png",
+    "artifacts/screenshots/web-s2-30-search.png",
+    "artifacts/screenshots/web-s2-31-sort-menu.png",
+    "artifacts/screenshots/web-s2-32-sorted-title.png",
+    "artifacts/screenshots/web-s2-33-favorites.png",
+    "artifacts/screenshots/web-s2-34-after-soft-delete.png",
+    "artifacts/screenshots/web-s2-35-trash.png",
+    "artifacts/screenshots/web-s2-36-after-restore.png",
+    "artifacts/screenshots/web-s2-37-confirm-dialog.png",
+    "artifacts/screenshots/web-s2-38-after-perm-delete.png",
+    "artifacts/screenshots/web-s2-39-mobile-notes-empty.png",
+    "artifacts/screenshots/web-s2-40-mobile-editor.png",
+    "artifacts/screenshots/web-s2-41-mobile-preview.png",
+    "artifacts/screenshots/web-s2-42-mobile-list-with-note.png",
+    "artifacts/screenshots/web-s2-43-mobile-sidebar-open.png",
+    "artifacts/screenshots/web-s2-44-landing.png",
+    "artifacts/screenshots/web-s2-45-signin.png",
+    "artifacts/screenshots/web-s2-46-signup.png",
+    "artifacts/screenshots/web-s2-47-light-mode.png",
+    "artifacts/screenshots/web-s2-48-settings.png"
+  ]
+}
