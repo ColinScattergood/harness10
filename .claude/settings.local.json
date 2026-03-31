@@ -11,7 +11,8 @@
       "Bash(/Users/colin/.local/bin/claude --help)",
       "Bash(bash run.sh \"A simple notes app with markdown support and dark mode\" --web-only)",
       "Bash(git status:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ]
   }
 }
