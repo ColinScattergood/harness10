@@ -9,7 +9,9 @@
       "Read(//Users/colin/**)",
       "Bash(/Users/colin/.local/bin/claude --version)",
       "Bash(/Users/colin/.local/bin/claude --help)",
-      "Bash(bash run.sh \"A simple notes app with markdown support and dark mode\" --web-only)"
+      "Bash(bash run.sh \"A simple notes app with markdown support and dark mode\" --web-only)",
+      "Bash(git status:*)",
+      "Bash(git add:*)"
     ]
   }
 }
