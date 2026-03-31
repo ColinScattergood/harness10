@@ -1,0 +1,57 @@
+{
+  "$schema": "Structured handoff document between agents",
+  "example": {
+    "platform": "web | ios",
+    "sprint": 1,
+    "attempt": 1,
+    "timestamp": "2026-03-31T12:00:00Z",
+    "git_ref": "sprint-1-web-gen-attempt-1",
+    "spec_file": "artifacts/specs/current-spec.md",
+    "completed_features": [
+      {
+        "story_id": "US-001",
+        "description": "User can sign up with email and password",
+        "status": "complete"
+      },
+      {
+        "story_id": "US-002",
+        "description": "User can log in",
+        "status": "partial",
+        "notes": "Login works but forgot-password flow not implemented"
+      }
+    ],
+    "routes_or_screens": [
+      {
+        "path_or_view": "/signup",
+        "description": "Sign up form with email/password validation"
+      },
+      {
+        "path_or_view": "/login",
+        "description": "Login form"
+      },
+      {
+        "path_or_view": "/dashboard",
+        "description": "Main dashboard (requires auth)"
+      }
+    ],
+    "how_to_run": {
+      "web": "cd web && npm run dev",
+      "ios": "xcodebuild -scheme AppName -destination 'platform=iOS Simulator,name=iPhone 16 Pro' build && xcrun simctl install booted build/Build/Products/Debug-iphonesimulator/AppName.app && xcrun simctl launch booted com.example.AppName"
+    },
+    "environment": {
+      "env_vars_needed": ["DATABASE_URL"],
+      "dependencies_installed": true,
+      "build_succeeds": true
+    },
+    "known_issues": [
+      "Forgot-password flow not yet implemented (out of scope for sprint 1)"
+    ],
+    "self_eval_notes": "Build succeeds, all routes render, no console errors. Login/signup tested manually.",
+    "previous_eval_issues_addressed": [
+      {
+        "issue": "Username showed as 'undefined' in nav",
+        "fix": "Fixed session endpoint to return user.name correctly"
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+artifacts/screenshots/
+node_modules/
+.env*
+ios/build/
+web/.next/
+artifacts/screenshots/
+node_modules/
+.env*
+ios/build/
+web/.next/

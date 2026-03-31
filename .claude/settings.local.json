@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(chmod +x /Users/colin/harness10/run.sh /Users/colin/harness10/scripts/*.sh /Users/colin/harness10/scripts/lib/*.sh)",
+      "Bash(claude --version)",
+      "Read(//Users/colin/.local/share/claude/versions/**)",
+      "Read(//opt/homebrew/bin/**)",
+      "Read(//usr/local/bin/**)",
+      "Read(//Users/colin/**)",
+      "Bash(/Users/colin/.local/bin/claude --version)",
+      "Bash(/Users/colin/.local/bin/claude --help)",
+      "Bash(bash run.sh \"A simple notes app with markdown support and dark mode\" --web-only)"
+    ]
+  }
+}

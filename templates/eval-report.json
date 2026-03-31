@@ -1,0 +1,62 @@
+{
+  "$schema": "Evaluation report from QA evaluator agent",
+  "example": {
+    "platform": "web",
+    "sprint": 1,
+    "attempt": 1,
+    "timestamp": "2026-03-31T14:00:00Z",
+    "scores": {
+      "functionality": 8,
+      "design_quality": 7,
+      "craft": 6,
+      "originality": 7
+    },
+    "average": 7.0,
+    "pass": true,
+    "done_conditions_results": [
+      {
+        "id": "DC-001",
+        "description": "User can create an account",
+        "pass": true,
+        "notes": "Signup works correctly, validates email format and password length"
+      },
+      {
+        "id": "DC-002",
+        "description": "User can log in",
+        "pass": true,
+        "notes": "Login works, redirects to dashboard"
+      },
+      {
+        "id": "DC-003",
+        "description": "Nav shows username",
+        "pass": false,
+        "notes": "Username shows as 'undefined' after login — session data not parsed correctly"
+      }
+    ],
+    "issues": [
+      {
+        "severity": "high",
+        "category": "functionality",
+        "description": "Username displays as 'undefined' in navigation bar after login",
+        "screenshot": "artifacts/screenshots/web-sprint1-nav-bug.png",
+        "fix_suggestion": "The session endpoint returns user data nested under .user.name but the NavBar component reads .name directly. Fix the destructuring in NavBar.tsx."
+      },
+      {
+        "severity": "medium",
+        "category": "craft",
+        "description": "Login form has no loading state during submission",
+        "screenshot": "artifacts/screenshots/web-sprint1-login-no-loading.png",
+        "fix_suggestion": "Add a loading spinner or disable the submit button while the login request is in flight."
+      }
+    ],
+    "console_errors": [],
+    "network_errors": [],
+    "screenshots_taken": [
+      "artifacts/screenshots/web-sprint1-home.png",
+      "artifacts/screenshots/web-sprint1-signup.png",
+      "artifacts/screenshots/web-sprint1-login.png",
+      "artifacts/screenshots/web-sprint1-dashboard.png",
+      "artifacts/screenshots/web-sprint1-nav-bug.png"
+    ]
+  }
+}

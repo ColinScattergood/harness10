@@ -1,0 +1,18 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "web-next-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--", "--port", "3000"],
+      "port": 3000,
+      "cwd": "web"
+    },
+    {
+      "name": "ios-simulator",
+      "runtimeExecutable": "bash",
+      "runtimeArgs": ["scripts/lib/sim-control.sh"],
+      "port": 0
+    }
+  ]
+}

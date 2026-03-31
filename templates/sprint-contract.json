@@ -1,0 +1,44 @@
+{
+  "$schema": "Sprint contract defining testable done conditions",
+  "example": {
+    "sprint_number": 1,
+    "platform": "web",
+    "title": "Authentication and Core Layout",
+    "scope": "User registration, login, session management, and app shell with navigation",
+    "done_conditions": [
+      {
+        "id": "DC-001",
+        "description": "User can create an account with email and password",
+        "testable": true,
+        "test_steps": "Navigate to /signup, fill form, submit, verify redirect to dashboard"
+      },
+      {
+        "id": "DC-002",
+        "description": "User can log in with existing credentials",
+        "testable": true,
+        "test_steps": "Navigate to /login, enter credentials, submit, verify dashboard loads"
+      },
+      {
+        "id": "DC-003",
+        "description": "Navigation bar shows user name when authenticated",
+        "testable": true,
+        "test_steps": "After login, verify nav bar displays the user's name"
+      },
+      {
+        "id": "DC-004",
+        "description": "Unauthenticated users are redirected to login",
+        "testable": true,
+        "test_steps": "Navigate to /dashboard without auth, verify redirect to /login"
+      }
+    ],
+    "out_of_scope": [
+      "Profile editing",
+      "Password reset",
+      "OAuth providers"
+    ],
+    "dependencies": [
+      "Database must be provisioned or use SQLite for dev"
+    ],
+    "estimated_complexity": 2
+  }
+}
