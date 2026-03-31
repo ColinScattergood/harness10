@@ -1,0 +1,137 @@
+{
+  "platform": "web",
+  "sprint": 3,
+  "attempt": 1,
+  "timestamp": "2026-03-31T23:30:00Z",
+  "git_ref": "4911945",
+  "spec_file": "artifacts/specs/current-spec.md",
+  "completed_features": [
+    {
+      "story_id": "US-003",
+      "description": "User can organize notes into folders",
+      "status": "complete",
+      "notes": "Full folder CRUD: create via sidebar + button, rename via dropdown menu, delete with confirmation dialog. Notes can be moved between folders via editor toolbar dropdown. Sidebar shows folders section with folder links for filtering."
+    },
+    {
+      "story_id": "US-012",
+      "description": "Keyboard shortcuts for common actions",
+      "status": "complete",
+      "notes": "Cmd/Ctrl+N creates new note (global shortcut in notes layout). Cmd/Ctrl+S saves immediately. Cmd/Ctrl+Shift+P toggles preview. All shortcuts work in the editor."
+    },
+    {
+      "story_id": "US-013",
+      "description": "Export a note as a plain .md file",
+      "status": "complete",
+      "notes": "Download button in editor toolbar exports note as .md file with title as H1 header followed by body content."
+    },
+    {
+      "story_id": "US-014",
+      "description": "Markdown toolbar with formatting buttons",
+      "status": "complete",
+      "notes": "Toolbar below editor toolbar with Bold, Italic, Heading, Link, Code, and List buttons. Each inserts correct markdown syntax at cursor position or wraps selection."
+    }
+  ],
+  "done_conditions": [
+    {
+      "id": "DC-018",
+      "description": "User can create a new folder and see it in the sidebar",
+      "status": "complete",
+      "notes": "Plus button in sidebar Folders section opens create dialog. New folder appears immediately in sidebar after creation."
+    },
+    {
+      "id": "DC-019",
+      "description": "User can rename and delete a folder",
+      "status": "complete",
+      "notes": "Three-dot menu on each folder in sidebar provides Rename and Delete options. Rename opens dialog with current name pre-filled. Delete shows AlertDialog confirmation."
+    },
+    {
+      "id": "DC-020",
+      "description": "User can move a note into a folder and see it listed under that folder",
+      "status": "complete",
+      "notes": "Folder icon button in editor toolbar opens dropdown with all folders. Selecting a folder moves the note. Clicking folder in sidebar filters to show only notes in that folder."
+    },
+    {
+      "id": "DC-021",
+      "description": "Deleting a folder moves its notes to the root level (not to trash)",
+      "status": "complete",
+      "notes": "Delete folder action explicitly sets folderId to null for all notes in the folder before deleting. Also backed by ON DELETE SET NULL in schema. Confirmation dialog explains this behavior."
+    },
+    {
+      "id": "DC-022",
+      "description": "User can export a note as a .md file",
+      "status": "complete",
+      "notes": "Download icon button in editor toolbar triggers browser download of .md file. File contains title as H1 heading followed by note body."
+    },
+    {
+      "id": "DC-023",
+      "description": "Markdown toolbar buttons insert correct formatting syntax",
+      "status": "complete",
+      "notes": "Six toolbar buttons: Bold (**text**), Italic (*text*), Heading (## ), Link ([text](url)), Code (`code`), List (- ). Wraps selection or inserts placeholder. Cursor positioned for immediate editing."
+    },
+    {
+      "id": "DC-024",
+      "description": "Web keyboard shortcuts work: Cmd/Ctrl+N creates a new note, Cmd/Ctrl+Shift+P toggles preview",
+      "status": "complete",
+      "notes": "KeyboardShortcuts component mounted in notes layout handles Cmd/Ctrl+N globally. Cmd/Ctrl+Shift+P handled in NoteEditor component. Cmd/Ctrl+S for immediate save also works."
+    },
+    {
+      "id": "DC-025",
+      "description": "iOS swipe gestures work: swipe to pin, swipe to delete",
+      "status": "skipped",
+      "notes": "iOS-only done condition, not applicable to web platform."
+    }
+  ],
+  "routes_or_screens": [
+    {
+      "path_or_view": "/",
+      "description": "Landing/marketing page with hero section and CTA buttons"
+    },
+    {
+      "path_or_view": "/sign-in",
+      "description": "Sign-in form with branding logo"
+    },
+    {
+      "path_or_view": "/sign-up",
+      "description": "Sign-up form with branding logo"
+    },
+    {
+      "path_or_view": "/notes",
+      "description": "Notes list with search, sort, new note. Header shows 'All Notes', 'Favorites', or folder name."
+    },
+    {
+      "path_or_view": "/notes?filter=favorites",
+      "description": "Filtered view showing only favorited notes"
+    },
+    {
+      "path_or_view": "/notes?folderId={id}",
+      "description": "Filtered view showing notes in a specific folder"
+    },
+    {
+      "path_or_view": "/notes/[id]",
+      "description": "Note editor with markdown toolbar, preview toggle, folder move, export, pin/favorite/delete"
+    },
+    {
+      "path_or_view": "/notes/trash",
+      "description": "Trash view with restore and permanent delete"
+    },
+    {
+      "path_or_view": "/settings",
+      "description": "Settings page with theme toggle and account info"
+    }
+  ],
+  "how_to_run": {
+    "web": "cd web && source ~/.nvm/nvm.sh && nvm use 22 && npm run db:migrate && npm run dev"
+  },
+  "environment": {
+    "env_vars_needed": [],
+    "dependencies_installed": true,
+    "build_succeeds": true,
+    "node_version_required": ">=20.9.0"
+  },
+  "known_issues": [
+    "Sessions are stored in-memory (Map) — they won't persist across server restarts. Acceptable for local dev with SQLite.",
+    "Node.js >= 20.9.0 is required (Next.js 16 requirement). Use 'nvm use 22' if available."
+  ],
+  "self_eval_notes": "Build succeeds with zero TypeScript errors. All 7 web-applicable done conditions for Sprint 3 implemented. Folder CRUD works end-to-end with sidebar integration. Markdown toolbar inserts correct syntax. Export downloads .md file. Keyboard shortcuts functional. DC-025 skipped as iOS-only.",
+  "previous_eval_issues_addressed": []
+}
