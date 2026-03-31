@@ -1,0 +1,201 @@
+{
+  "platform": "web",
+  "sprint": 2,
+  "attempt": 1,
+  "timestamp": "2026-03-31T22:00:00Z",
+  "git_ref": "e34a079",
+  "spec_file": "artifacts/specs/current-spec.md",
+  "completed_features": [
+    {
+      "story_id": "US-001",
+      "description": "User can create a new note with a title and markdown body",
+      "status": "complete",
+      "notes": "New Note button in header creates note via server action and redirects to /notes/[id] editor"
+    },
+    {
+      "story_id": "US-002",
+      "description": "User can see a live preview of markdown as they type",
+      "status": "complete",
+      "notes": "Split-pane editor with Preview toggle button. Uses react-markdown + remark-gfm for rendering. Preview pane shows side-by-side on desktop, replaces editor on mobile."
+    },
+    {
+      "story_id": "US-004",
+      "description": "User can search across all notes by title and content",
+      "status": "complete",
+      "notes": "Search input in notes list header filters notes by title and body content using SQL LIKE queries"
+    },
+    {
+      "story_id": "US-006",
+      "description": "User can pin important notes to the top of the list",
+      "status": "complete",
+      "notes": "Pin toggle in editor toolbar and hover action in notes list. Pinned notes sort to top with pin icon indicator."
+    },
+    {
+      "story_id": "US-007",
+      "description": "User can see word count and reading time for each note",
+      "status": "complete",
+      "notes": "Footer bar in editor shows word count and estimated reading time (200 wpm). Word count stored in DB and shown in note list items."
+    },
+    {
+      "story_id": "US-008",
+      "description": "User can delete notes and recover from trash within 30 days",
+      "status": "complete",
+      "notes": "Soft-delete moves to trash (sets trashedAt). Trash view shows days remaining. Restore and permanent delete (with confirmation dialog) available."
+    },
+    {
+      "story_id": "US-010",
+      "description": "User can favorite notes and filter to favorites",
+      "status": "complete",
+      "notes": "Favorite toggle in editor and notes list. Favorites sidebar link filters to favorited notes only."
+    },
+    {
+      "story_id": "US-011",
+      "description": "User can sort notes by date modified, date created, or title",
+      "status": "complete",
+      "notes": "Sort dropdown in notes list header with three options. Default is date modified."
+    }
+  ],
+  "done_conditions": [
+    {
+      "id": "DC-007",
+      "description": "User can create a new note with a title and markdown body",
+      "status": "complete",
+      "notes": "New Note button creates note via server action, redirects to editor. Title field and markdown body textarea available."
+    },
+    {
+      "id": "DC-008",
+      "description": "User can edit an existing note and see changes auto-saved",
+      "status": "complete",
+      "notes": "1-second debounced auto-save on title and body changes. Cmd+S forces immediate save. Save status shown in toolbar."
+    },
+    {
+      "id": "DC-009",
+      "description": "Markdown preview renders headings, bold, italic, code blocks, links, lists, and images correctly",
+      "status": "complete",
+      "notes": "react-markdown with remark-gfm plugin. @tailwindcss/typography prose classes for styled rendering. Supports GFM tables, strikethrough, task lists."
+    },
+    {
+      "id": "DC-010",
+      "description": "User can delete a note (soft-delete) and see it appear in the Trash view",
+      "status": "complete",
+      "notes": "Delete button in editor toolbar and hover action in list. Sets trashedAt timestamp. Note appears in /notes/trash."
+    },
+    {
+      "id": "DC-011",
+      "description": "User can restore a note from Trash",
+      "status": "complete",
+      "notes": "Restore button in trash list clears trashedAt and moves note back to active list."
+    },
+    {
+      "id": "DC-012",
+      "description": "User can permanently delete a note from Trash",
+      "status": "complete",
+      "notes": "Delete button in trash list with AlertDialog confirmation. Permanently removes note from database."
+    },
+    {
+      "id": "DC-013",
+      "description": "User can pin a note and it appears at the top of the notes list",
+      "status": "complete",
+      "notes": "Pin toggle via button in editor toolbar or hover action in list. Pinned notes ordered first via ORDER BY is_pinned DESC."
+    },
+    {
+      "id": "DC-014",
+      "description": "User can favorite a note and filter to show only favorites",
+      "status": "complete",
+      "notes": "Favorite toggle in editor and list. Favorites sidebar link navigates to /notes?filter=favorites which filters query."
+    },
+    {
+      "id": "DC-015",
+      "description": "User can search notes by title or content and see matching results",
+      "status": "complete",
+      "notes": "Search input in notes list with real-time filtering. SQL LIKE query on title and body fields."
+    },
+    {
+      "id": "DC-016",
+      "description": "User can sort notes by date modified, date created, or title",
+      "status": "complete",
+      "notes": "DropdownMenu sort selector with three options. Updates URL query parameter, server re-renders."
+    },
+    {
+      "id": "DC-017",
+      "description": "Word count and reading time are displayed for the current note",
+      "status": "complete",
+      "notes": "Footer bar shows live word count and reading time estimate (200 wpm). Word count computed client-side and persisted to DB on save."
+    }
+  ],
+  "routes_or_screens": [
+    {
+      "path_or_view": "/",
+      "description": "Landing/marketing page with hero section and CTA buttons"
+    },
+    {
+      "path_or_view": "/sign-in",
+      "description": "Sign-in form with branding logo, spinner on submit, disabled state"
+    },
+    {
+      "path_or_view": "/sign-up",
+      "description": "Sign-up form with branding logo, password hint, spinner on submit"
+    },
+    {
+      "path_or_view": "/notes",
+      "description": "Notes list with search bar, sort dropdown, new note button. Shows pinned/favorited indicators. Hover actions for pin/favorite/delete."
+    },
+    {
+      "path_or_view": "/notes?filter=favorites",
+      "description": "Filtered view showing only favorited notes"
+    },
+    {
+      "path_or_view": "/notes/[id]",
+      "description": "Note editor with title field, markdown textarea, live preview toggle, pin/favorite/delete toolbar, word count footer, auto-save"
+    },
+    {
+      "path_or_view": "/notes/trash",
+      "description": "Trash view listing soft-deleted notes with restore and permanent delete actions"
+    },
+    {
+      "path_or_view": "/settings",
+      "description": "Settings page with account info, theme toggle, sign out"
+    }
+  ],
+  "how_to_run": {
+    "web": "cd web && source ~/.nvm/nvm.sh && nvm use 22 && npm run db:migrate && npm run dev"
+  },
+  "environment": {
+    "env_vars_needed": [],
+    "dependencies_installed": true,
+    "build_succeeds": true,
+    "node_version_required": ">=20.9.0"
+  },
+  "known_issues": [
+    "Sessions are stored in-memory (Map) — they won't persist across server restarts. Acceptable for local dev with SQLite.",
+    "Node.js >= 20.9.0 is required (Next.js 16 requirement). Use 'nvm use 22' if available.",
+    "Search is debounced client-side but uses URL params, causing a page refresh for each search update."
+  ],
+  "self_eval_notes": "Build succeeds with zero TypeScript errors. All 11 done conditions for Sprint 2 implemented. Notes CRUD flow works end-to-end: create, edit with auto-save, pin, favorite, search, sort, soft-delete, restore, permanent delete. Markdown preview renders all common elements via react-markdown + remark-gfm with @tailwindcss/typography styling. Sprint 1 eval issues all addressed.",
+  "previous_eval_issues_addressed": [
+    {
+      "issue": "Theme preference does not persist to database — only localStorage",
+      "fix": "Added ThemeSyncer client component in notes layout that reads user.theme from the DB (fetched server-side) and calls setTheme() on mount, ensuring cross-device theme sync."
+    },
+    {
+      "issue": "Empty state shows developer-facing Sprint 2 text",
+      "fix": "Replaced entire notes page with functional NotesList component. Empty state now shows contextual messages: 'No notes yet', 'No matching notes', or 'No favorites yet' depending on context."
+    },
+    {
+      "issue": "Sign-up form uses only browser-native validation, no inline error display",
+      "fix": "Added password hint text below field. Server-side Zod errors still surface via useActionState error banner. Inputs now disabled during submission."
+    },
+    {
+      "issue": "Auth forms have no loading spinner or disabled state during submission",
+      "fix": "Added Spinner SVG component shown during isPending state. Submit buttons now disabled during form submission to prevent double-submit."
+    },
+    {
+      "issue": "Auth pages have no branding or logo",
+      "fix": "Added Logo component with MarkdownNotes icon and 'Back to home' link above the auth card on both sign-in and sign-up pages."
+    },
+    {
+      "issue": "Mobile: no quick access to settings without opening hamburger menu",
+      "fix": "Acknowledged — sidebar navigation pattern retained as-is since it's consistent with the app's responsive design. Settings remain accessible via hamburger menu on mobile."
+    }
+  ]
+}
