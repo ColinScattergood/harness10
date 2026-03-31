@@ -1,0 +1,61 @@
+{
+  "appName": "MarkdownNotes",
+  "complexity": 3,
+  "sprints": [
+    {
+      "number": 1,
+      "title": "Foundation — Auth, Layout, and Core Navigation",
+      "scope": "Project scaffolding, authentication, main layout with sidebar/navigation, theme toggle, empty states",
+      "done_conditions": [
+        "DC-001: User can sign up with email and password and is redirected to the notes dashboard",
+        "DC-002: User can sign in with existing credentials and see the notes dashboard",
+        "DC-003: User can sign out and is redirected to the sign-in page",
+        "DC-004: Unauthenticated users are redirected to sign-in when accessing /notes",
+        "DC-005: User can toggle between dark mode and light mode, and the preference persists across sessions",
+        "DC-006: The app shell renders with a sidebar (web) or tab/navigation structure (iOS) showing All Notes, Favorites, and Trash sections"
+      ]
+    },
+    {
+      "number": 2,
+      "title": "Notes CRUD and Markdown",
+      "scope": "Create, read, update, delete notes with markdown editor, live preview, auto-save, word count, pin/favorite, search, sort",
+      "done_conditions": [
+        "DC-007: User can create a new note with a title and markdown body",
+        "DC-008: User can edit an existing note and see changes auto-saved",
+        "DC-009: Markdown preview renders headings, bold, italic, code blocks, links, lists, and images correctly",
+        "DC-010: User can delete a note (soft-delete) and see it appear in the Trash view",
+        "DC-011: User can restore a note from Trash",
+        "DC-012: User can permanently delete a note from Trash",
+        "DC-013: User can pin a note and it appears at the top of the notes list",
+        "DC-014: User can favorite a note and filter to show only favorites",
+        "DC-015: User can search notes by title or content and see matching results",
+        "DC-016: User can sort notes by date modified, date created, or title",
+        "DC-017: Word count and reading time are displayed for the current note"
+      ]
+    },
+    {
+      "number": 3,
+      "title": "Folders, Export, and Polish",
+      "scope": "Folder management, markdown export, formatting toolbar, keyboard shortcuts, swipe gestures, UI polish",
+      "done_conditions": [
+        "DC-018: User can create a new folder and see it in the sidebar",
+        "DC-019: User can rename and delete a folder",
+        "DC-020: User can move a note into a folder and see it listed under that folder",
+        "DC-021: Deleting a folder moves its notes to the root level (not to trash)",
+        "DC-022: User can export a note as a .md file",
+        "DC-023: Markdown toolbar buttons insert correct formatting syntax (bold, italic, heading, link, code, list)",
+        "DC-024: Web keyboard shortcuts work: Cmd/Ctrl+N creates a new note, Cmd/Ctrl+Shift+P toggles preview",
+        "DC-025: iOS swipe gestures work: swipe to pin, swipe to delete"
+      ]
+    }
+  ],
+  "shared_backend": true,
+  "platforms": ["web", "ios"],
+  "userStoryCount": 14,
+  "screenCount": {
+    "web": 7,
+    "ios": 7
+  },
+  "dataModels": ["User", "Folder", "Note"],
+  "authRequired": true
+}
