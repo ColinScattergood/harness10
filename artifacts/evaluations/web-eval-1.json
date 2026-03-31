@@ -1,0 +1,121 @@
+{
+  "platform": "web",
+  "sprint": 1,
+  "attempt": 1,
+  "timestamp": "2026-03-31T21:30:00Z",
+  "scores": {
+    "functionality": 7,
+    "design_quality": 7,
+    "craft": 6,
+    "originality": 6
+  },
+  "average": 6.5,
+  "pass": true,
+  "done_conditions_results": [
+    {
+      "id": "DC-001",
+      "description": "User can sign up with email and password and is redirected to the notes dashboard",
+      "pass": true,
+      "notes": "Sign-up form at /sign-up works correctly. Name, email, and password fields present with placeholder text. Form submits via Server Action, creates user in SQLite DB with bcrypt-hashed password, sets session cookie, and redirects to /notes. Duplicate email shows 'An account with this email already exists' error. Browser-native HTML5 validation catches empty/invalid fields."
+    },
+    {
+      "id": "DC-002",
+      "description": "User can sign in with existing credentials and see the notes dashboard",
+      "pass": true,
+      "notes": "Sign-in form at /sign-in works correctly. Email and password fields present. Successful login sets session cookie and redirects to /notes. Invalid credentials show 'Invalid email or password' error in a styled destructive banner. Button shows 'Signing in...' loading state during submission."
+    },
+    {
+      "id": "DC-003",
+      "description": "User can sign out and is redirected to the sign-in page",
+      "pass": true,
+      "notes": "Sign-out button is available on the Settings page (/settings). Clicking it destroys the session cookie and redirects to /sign-in. Sign-out icon also present in sidebar footer on the notes dashboard."
+    },
+    {
+      "id": "DC-004",
+      "description": "Unauthenticated users are redirected to sign-in when accessing /notes",
+      "pass": true,
+      "notes": "Accessing /notes without a valid session returns HTTP 307 redirect to /sign-in. Verified in both curl (raw HTTP) and Playwright (fresh browser context with no cookies). Works for /notes, /notes/trash, and /settings."
+    },
+    {
+      "id": "DC-005",
+      "description": "User can toggle between dark mode and light mode, and the preference persists across sessions",
+      "pass": true,
+      "notes": "Theme toggle button in sidebar footer (aria-label='Switch to light mode') and on settings page works. Switches between dark and light mode instantly. Preference persists via localStorage across page reloads and navigation within the same browser. CAVEAT: Handoff claims database persistence via server action, but tested with a fresh browser context (same session cookie, no localStorage) and theme reverted to dark — database persistence is NOT working. However, the DC only requires 'persists across sessions' which localStorage satisfies for same-browser sessions."
+    },
+    {
+      "id": "DC-006",
+      "description": "The app shell renders with a sidebar showing All Notes, Favorites, and Trash sections",
+      "pass": true,
+      "notes": "Sidebar renders with MarkdownNotes branding at top, followed by All Notes (with document icon), Favorites (with star icon), and Trash (with trash icon) navigation items. Active item is highlighted. Sidebar footer shows user name, theme toggle, and sign-out icon. On mobile (375px), sidebar collapses to a hamburger menu that opens as a Sheet slide-out."
+    }
+  ],
+  "issues": [
+    {
+      "severity": "medium",
+      "category": "functionality",
+      "description": "Theme preference does not persist to database despite handoff claiming server action persistence. Toggling theme saves to localStorage only. When logging in from a fresh browser (same session cookie, no localStorage), theme reverts to dark default. Cross-device theme sync will not work.",
+      "screenshot": "artifacts/screenshots/web-s1-27-theme-persist-reload.png",
+      "fix_suggestion": "Verify the server action that updates the user's theme field in the database is actually being called when the toggle is clicked. Check that the ThemeToggle component calls the server action in addition to next-themes' setTheme. On the server side, ensure the theme value from the user record is passed to the ThemeProvider's defaultTheme or forcedTheme prop."
+    },
+    {
+      "severity": "medium",
+      "category": "craft",
+      "description": "Empty state on the notes dashboard shows developer-facing text: 'Notes with markdown support, live preview, folders, and more — coming in Sprint 2.' This exposes internal sprint terminology to end users.",
+      "screenshot": "artifacts/screenshots/web-s1-06-dashboard.png",
+      "fix_suggestion": "Replace with user-facing copy like 'Create your first note to get started' or remove the Sprint 2 reference entirely. The text 'Create your first note to get started. Your markdown notes will appear here.' on the line above is sufficient."
+    },
+    {
+      "severity": "low",
+      "category": "craft",
+      "description": "Sign-up form uses only browser-native HTML5 validation tooltips (e.g., 'Please fill out this field', 'Please include an @ in the email address') instead of styled inline validation errors. The form has Zod validation on the server but no client-side custom error display for field-level issues like password too short.",
+      "screenshot": "artifacts/screenshots/web-s1-03-signup-empty.png",
+      "fix_suggestion": "Add client-side validation feedback using shadcn/ui form error states. Display Zod validation errors inline below each field with the text-destructive style. Consider using useFormState/useActionState to surface server-side Zod errors."
+    },
+    {
+      "severity": "low",
+      "category": "craft",
+      "description": "Sign-in and sign-up forms have no visual loading indicator beyond button text change ('Signing in...'). No spinner or button disabled state is applied during form submission, so users could potentially double-submit.",
+      "screenshot": "artifacts/screenshots/web-s1-09-signin.png",
+      "fix_suggestion": "Add disabled attribute to the submit button during pending state and show a Loader2 spinner icon from lucide-react alongside the loading text. Use useFormStatus or useActionState to detect pending state."
+    },
+    {
+      "severity": "low",
+      "category": "design_quality",
+      "description": "Sign-up and sign-in pages have no branding or logo — just a centered card with no context. The landing page header has the MarkdownNotes logo, but the auth pages feel disconnected from the main brand.",
+      "screenshot": "artifacts/screenshots/web-s1-02-signup.png",
+      "fix_suggestion": "Add the MarkdownNotes logo/icon above the card title on auth pages, or add a subtle background pattern. Consider adding a 'Back to home' link."
+    },
+    {
+      "severity": "low",
+      "category": "craft",
+      "description": "On mobile viewport (375px), the notes dashboard sidebar is hidden behind a hamburger menu. The user name, theme toggle, and sign-out options are hidden in the collapsed sidebar, with no way to access settings from the main view without opening the hamburger menu first.",
+      "screenshot": "artifacts/screenshots/web-s1-15-mobile-notes.png",
+      "fix_suggestion": "Consider adding a user avatar or settings gear icon in the mobile header bar for quick access to settings and sign-out."
+    }
+  ],
+  "console_errors": [],
+  "network_errors": [],
+  "screenshots_taken": [
+    "artifacts/screenshots/web-s1-01-landing.png",
+    "artifacts/screenshots/web-s1-02-signup.png",
+    "artifacts/screenshots/web-s1-03-signup-empty.png",
+    "artifacts/screenshots/web-s1-04-signup-filled.png",
+    "artifacts/screenshots/web-s1-05-signup-result.png",
+    "artifacts/screenshots/web-s1-06-dashboard.png",
+    "artifacts/screenshots/web-s1-07-settings.png",
+    "artifacts/screenshots/web-s1-08-after-signout.png",
+    "artifacts/screenshots/web-s1-09-signin.png",
+    "artifacts/screenshots/web-s1-10-signin-result.png",
+    "artifacts/screenshots/web-s1-11-auth-redirect.png",
+    "artifacts/screenshots/web-s1-12-settings-theme.png",
+    "artifacts/screenshots/web-s1-14-trash.png",
+    "artifacts/screenshots/web-s1-15-mobile-notes.png",
+    "artifacts/screenshots/web-s1-16-mobile-landing.png",
+    "artifacts/screenshots/web-s1-17-invalid-signin.png",
+    "artifacts/screenshots/web-s1-18-theme-after-toggle.png",
+    "artifacts/screenshots/web-s1-24-signup-validation.png",
+    "artifacts/screenshots/web-s1-25-signup-duplicate.png",
+    "artifacts/screenshots/web-s1-26-theme-persist-nav.png",
+    "artifacts/screenshots/web-s1-27-theme-persist-reload.png"
+  ]
+}
