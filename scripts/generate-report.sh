@@ -134,11 +134,16 @@ cat > "$OUTPUT" << 'HTMLEOF'
 
   /* Score cards */
   .scores-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 24px; }
-  .score-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+  .score-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; position: relative; }
   .score-card .label { font-size: 11px; color: var(--fg3); text-transform: uppercase; letter-spacing: 1px; }
   .score-card .value { font-size: 32px; font-weight: 700; margin-top: 4px; }
   .score-card .bar { height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 8px; overflow: hidden; }
   .score-card .bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+
+  /* Tooltips */
+  [data-tip] { position: relative; cursor: help; }
+  [data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 12px; border-radius: 6px; font-size: 11px; line-height: 1.5; white-space: normal; width: max-content; max-width: 260px; z-index: 300; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4); text-transform: none; letter-spacing: 0; font-weight: 400; text-align: left; }
+  [data-tip]:hover::before { content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--fg); z-index: 300; pointer-events: none; }
 
   /* Done conditions */
   .section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
@@ -237,7 +242,7 @@ cat > "$OUTPUT" << 'HTMLEOF'
   .drawer-section { margin-bottom: 24px; }
   .drawer-section h4 { font-size: 11px; color: var(--fg3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
   .drawer-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .drawer-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; text-align: center; }
+  .drawer-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; text-align: center; position: relative; }
   .drawer-card .card-value { font-size: 22px; font-weight: 700; }
   .drawer-card .card-label { font-size: 10px; color: var(--fg3); text-transform: uppercase; letter-spacing: 0.5px; margin-top: 2px; }
   .drawer-tag { display: inline-block; font-size: 11px; padding: 3px 10px; border-radius: 4px; background: var(--bg3); border: 1px solid var(--border); color: var(--fg2); margin: 2px 4px 2px 0; }
@@ -422,6 +427,28 @@ DATAEOF
 
 cat >> "$OUTPUT" << 'JSEOF'
 
+// ===== Tooltip descriptions =====
+const TIPS = {
+  // Evaluator score cards
+  functionality: '10: Every feature works perfectly. 7: All core features work, minor edge cases may fail. 5: Some core features broken. Must be ≥ 7 to pass.',
+  design_quality: '10: Cohesive, professional design. 7: Good design with minor inconsistencies. 5: Functional but clearly developer-built UI.',
+  craft: '10: Perfect typography, spacing, color, animations, responsive. 7: Good execution with minor polish issues. 5: Acceptable but noticeable rough edges.',
+  originality: '10: Unique, distinctive product. 7: Some custom choices that distinguish it. 5: Looks like a slightly modified template.',
+  average: 'Mean of Functionality, Design, Craft, and Originality. Must be ≥ 7.0 (combined with Functionality ≥ 7) to pass.',
+  // Planner overview cards
+  complexity: 'Spec complexity rating. 1: Single screen, no auth. 2: 2–4 screens, simple CRUD. 3: 5–10 screens, relationships, auth. 4: 10–15 screens, real-time features. 5: 15+ screens, complex workflows.',
+  sprints: 'Number of build-evaluate cycles. Each sprint has a scope, done conditions, and a pass/fail gate.',
+  stories: 'Total user stories in the product spec. Each describes a discrete piece of user-facing functionality.',
+  'screens w/i': 'Number of unique screens or routes. Web / iOS counts shown separately.',
+  models: 'Data models defined in the spec (e.g., User, Note, Folder). Determines database schema complexity.',
+  auth: 'Whether the app requires user authentication (sign-up, sign-in, sessions).',
+};
+
+function tip(key) {
+  const t = TIPS[key.toLowerCase()] || TIPS[key.toLowerCase().replace(' ','_')];
+  return t ? ` data-tip="${t.replace(/"/g, '&quot;')}"` : '';
+}
+
 // ===== Drawer state =====
 let currentDrawer = null; // { type, platform, sprintIdx }
 
@@ -564,14 +591,14 @@ function renderPlannerBody() {
 
   // Summary cards
   html += '<div class="drawer-section"><h4>Overview</h4><div class="drawer-cards">';
-  html += `<div class="drawer-card"><div class="card-value" style="color:var(--accent)">${META.complexity || '?'}</div><div class="card-label">Complexity</div></div>`;
-  html += `<div class="drawer-card"><div class="card-value">${META.sprints?.length || 0}</div><div class="card-label">Sprints</div></div>`;
-  html += `<div class="drawer-card"><div class="card-value">${META.userStoryCount || 0}</div><div class="card-label">Stories</div></div>`;
+  html += `<div class="drawer-card"${tip('complexity')}><div class="card-value" style="color:var(--accent)">${META.complexity || '?'}</div><div class="card-label">Complexity</div></div>`;
+  html += `<div class="drawer-card"${tip('sprints')}><div class="card-value">${META.sprints?.length || 0}</div><div class="card-label">Sprints</div></div>`;
+  html += `<div class="drawer-card"${tip('stories')}><div class="card-value">${META.userStoryCount || 0}</div><div class="card-label">Stories</div></div>`;
   const webScreens = META.screenCount?.web || 0;
   const iosScreens = META.screenCount?.ios || 0;
-  html += `<div class="drawer-card"><div class="card-value">${webScreens}/${iosScreens}</div><div class="card-label">Screens W/I</div></div>`;
-  html += `<div class="drawer-card"><div class="card-value">${META.dataModels?.length || 0}</div><div class="card-label">Models</div></div>`;
-  html += `<div class="drawer-card"><div class="card-value" style="color:${META.authRequired ? 'var(--green)' : 'var(--fg3)'}">${META.authRequired ? 'Yes' : 'No'}</div><div class="card-label">Auth</div></div>`;
+  html += `<div class="drawer-card"${tip('screens w/i')}><div class="card-value">${webScreens}/${iosScreens}</div><div class="card-label">Screens W/I</div></div>`;
+  html += `<div class="drawer-card"${tip('models')}><div class="card-value">${META.dataModels?.length || 0}</div><div class="card-label">Models</div></div>`;
+  html += `<div class="drawer-card"${tip('auth')}><div class="card-value" style="color:${META.authRequired ? 'var(--green)' : 'var(--fg3)'}">${META.authRequired ? 'Yes' : 'No'}</div><div class="card-label">Auth</div></div>`;
   html += '</div></div>';
 
   // Tags
@@ -718,9 +745,9 @@ function renderEvaluatorBody(platform, sprintIdx) {
   const scoreColors = { functionality: 'var(--green)', design_quality: 'var(--accent)', craft: 'var(--yellow)', originality: 'var(--orange)' };
   for (const [key, color] of Object.entries(scoreColors)) {
     const val = ev.scores[key] || 0;
-    html += `<div class="score-card"><div class="label">${key.replace('_',' ')}</div><div class="value" style="color:${color}">${val}</div><div class="bar"><div class="bar-fill" style="width:${val*10}%;background:${color}"></div></div></div>`;
+    html += `<div class="score-card"${tip(key)}><div class="label">${key.replace('_',' ')}</div><div class="value" style="color:${color}">${val}</div><div class="bar"><div class="bar-fill" style="width:${val*10}%;background:${color}"></div></div></div>`;
   }
-  html += `<div class="score-card"><div class="label">Average</div><div class="value" style="color:${ev.pass ? 'var(--green)' : 'var(--red)'}">${ev.average.toFixed(1)}</div><div class="bar"><div class="bar-fill" style="width:${ev.average*10}%;background:${ev.pass ? 'var(--green)' : 'var(--red)'}"></div></div></div>`;
+  html += `<div class="score-card"${tip('average')}><div class="label">Average</div><div class="value" style="color:${ev.pass ? 'var(--green)' : 'var(--red)'}">${ev.average.toFixed(1)}</div><div class="bar"><div class="bar-fill" style="width:${ev.average*10}%;background:${ev.pass ? 'var(--green)' : 'var(--red)'}"></div></div></div>`;
   html += '</div></div>';
 
   // Verdict callout
@@ -967,9 +994,9 @@ function showSprint(idx) {
   const scoreColors = { functionality: 'var(--green)', design_quality: 'var(--accent)', craft: 'var(--yellow)', originality: 'var(--orange)' };
   for (const [key, color] of Object.entries(scoreColors)) {
     const val = ev.scores[key] || 0;
-    html += `<div class="score-card"><div class="label">${key.replace('_',' ')}</div><div class="value" style="color:${color}">${val}</div><div class="bar"><div class="bar-fill" style="width:${val*10}%;background:${color}"></div></div></div>`;
+    html += `<div class="score-card"${tip(key)}><div class="label">${key.replace('_',' ')}</div><div class="value" style="color:${color}">${val}</div><div class="bar"><div class="bar-fill" style="width:${val*10}%;background:${color}"></div></div></div>`;
   }
-  html += `<div class="score-card"><div class="label">Average</div><div class="value" style="color:${ev.pass ? 'var(--green)' : 'var(--red)'}">${ev.average.toFixed(1)}</div><div class="bar"><div class="bar-fill" style="width:${ev.average*10}%;background:${ev.pass ? 'var(--green)' : 'var(--red)'}"></div></div></div>`;
+  html += `<div class="score-card"${tip('average')}><div class="label">Average</div><div class="value" style="color:${ev.pass ? 'var(--green)' : 'var(--red)'}">${ev.average.toFixed(1)}</div><div class="bar"><div class="bar-fill" style="width:${ev.average*10}%;background:${ev.pass ? 'var(--green)' : 'var(--red)'}"></div></div></div>`;
   html += '</div>';
 
   // Done conditions
