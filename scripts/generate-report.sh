@@ -315,6 +315,7 @@ cat > "$OUTPUT" << 'HTMLEOF'
   <div class="header">
     <h1>Harness10 Run Report</h1>
     <p>Multi-agent harness: Planner → Generator → Evaluator</p>
+    <a href="report-kanban.html" style="display:inline-block;margin-top:12px;padding:8px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent);font-family:inherit;font-size:12px;text-decoration:none;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">View Kanban Board →</a>
   </div>
 
   <!-- Architecture -->
@@ -1090,5 +1091,300 @@ renderGitLog();
 </html>
 JSEOF
 
+# ===== Generate Kanban Board =====
+KANBAN_OUTPUT="$HARNESS_ROOT/report-kanban.html"
+
+cat > "$KANBAN_OUTPUT" << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harness10 — Kanban Board</title>
+<style>
+  :root {
+    --bg: #09090b; --bg2: #18181b; --bg3: #27272a;
+    --fg: #fafafa; --fg2: #a1a1aa; --fg3: #71717a;
+    --accent: #3b82f6; --green: #22c55e; --red: #ef4444;
+    --yellow: #eab308; --orange: #f97316;
+    --border: #27272a; --radius: 8px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace; background: var(--bg); color: var(--fg); line-height: 1.6; min-height: 100vh; }
+
+  /* Layout */
+  .top-bar { padding: 16px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  .top-bar h1 { font-size: 18px; font-weight: 700; }
+  .top-bar .back { color: var(--accent); text-decoration: none; font-size: 12px; }
+  .top-bar .back:hover { text-decoration: underline; }
+
+  /* Filters */
+  .filters { padding: 16px 24px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; border-bottom: 1px solid var(--border); }
+  .filter-pill { background: var(--bg3); border: 1px solid var(--border); border-radius: 20px; padding: 5px 14px; cursor: pointer; font-family: inherit; color: var(--fg3); font-size: 12px; transition: all 0.15s; }
+  .filter-pill:hover { border-color: var(--fg3); color: var(--fg2); }
+  .filter-pill.active { background: var(--accent); border-color: var(--accent); color: white; }
+  .filter-label { font-size: 11px; color: var(--fg3); text-transform: uppercase; letter-spacing: 1px; margin-right: 4px; }
+
+  /* Board */
+  .board { display: flex; gap: 16px; padding: 24px; overflow-x: auto; align-items: flex-start; }
+  .column { flex: 1; min-width: 340px; max-width: 480px; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); display: flex; flex-direction: column; }
+  .col-header { padding: 16px; border-bottom: 1px solid var(--border); }
+  .col-header .col-title { font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+  .col-header .col-title .sprint-num { color: var(--accent); }
+  .col-header .col-stats { display: flex; gap: 12px; margin-top: 8px; font-size: 11px; color: var(--fg3); }
+  .col-header .col-stats .stat-val { color: var(--fg); font-weight: 600; }
+  .col-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+  .swim-label { font-size: 10px; color: var(--fg3); text-transform: uppercase; letter-spacing: 1px; padding: 8px 4px 4px; }
+
+  /* Cards */
+  .card { background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; cursor: pointer; transition: all 0.15s; border-left: 3px solid transparent; }
+  .card:hover { border-color: var(--fg3); }
+  .card.pass { border-left-color: var(--green); }
+  .card.fail { border-left-color: var(--red); }
+  .card.issue-high { border-left-color: var(--red); }
+  .card.issue-medium { border-left-color: var(--yellow); }
+  .card.issue-low { border-left-color: var(--accent); }
+  .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .card-id { font-size: 11px; font-weight: 700; color: var(--accent); }
+  .card-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 600; }
+  .card-badge.pass { background: rgba(34,197,94,0.15); color: var(--green); }
+  .card-badge.fail { background: rgba(239,68,68,0.15); color: var(--red); }
+  .card-badge.fixed { background: rgba(34,197,94,0.15); color: var(--green); }
+  .card-badge.severity-high { background: rgba(239,68,68,0.1); color: var(--red); }
+  .card-badge.severity-medium { background: rgba(234,179,8,0.1); color: var(--yellow); }
+  .card-badge.severity-low { background: rgba(59,130,246,0.1); color: var(--accent); }
+  .card-desc { font-size: 12px; color: var(--fg2); line-height: 1.5; }
+  .card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+  .card-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; background: var(--bg2); color: var(--fg3); border: 1px solid var(--border); }
+
+  /* Expanded card detail */
+  .card-detail { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); font-size: 11px; color: var(--fg3); line-height: 1.7; }
+  .card-detail.open { display: block; }
+  .card-detail .detail-label { color: var(--fg2); font-weight: 600; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; margin-top: 8px; }
+  .card-detail .detail-label:first-child { margin-top: 0; }
+  .card-detail .fix-text { font-style: italic; color: var(--fg3); }
+  .card-detail img { max-width: 100%; border-radius: 4px; margin-top: 6px; cursor: pointer; border: 1px solid var(--border); }
+
+  /* Summary row */
+  .summary { display: flex; gap: 16px; padding: 16px 24px; }
+  .summary-card { flex: 1; background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; text-align: center; }
+  .summary-card .s-label { font-size: 10px; color: var(--fg3); text-transform: uppercase; letter-spacing: 1px; }
+  .summary-card .s-value { font-size: 28px; font-weight: 700; margin-top: 4px; }
+
+  /* Lightbox */
+  .lightbox { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: center; justify-content: center; cursor: pointer; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 90vw; max-height: 90vh; border-radius: var(--radius); }
+
+  @media (max-width: 768px) {
+    .board { flex-direction: column; }
+    .column { min-width: 100%; max-width: 100%; }
+    .summary { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div>
+    <h1>Kanban Board</h1>
+  </div>
+  <a class="back" href="report.html">← Back to Report</a>
+</div>
+
+<div class="filters">
+  <span class="filter-label">Show:</span>
+  <button class="filter-pill active" onclick="setFilter('all',this)">All</button>
+  <button class="filter-pill" onclick="setFilter('dc-pass',this)">DCs Passed</button>
+  <button class="filter-pill" onclick="setFilter('dc-fail',this)">DCs Failed</button>
+  <button class="filter-pill" onclick="setFilter('issues',this)">Issues Only</button>
+</div>
+
+<div class="summary" id="summary"></div>
+<div class="board" id="board"></div>
+
+<div class="lightbox" id="lightbox" onclick="this.classList.remove('open')">
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<script>
+HTMLEOF
+
+# Inject data into kanban
+cat >> "$KANBAN_OUTPUT" << DATAEOF
+const META = $META;
+const EVALS = $EVALS;
+const IOS_EVALS = $IOS_EVALS;
+const HANDOFFS = $HANDOFFS;
+const IOS_HANDOFFS = $IOS_HANDOFFS;
+const SCREENSHOTS = $SCREENSHOTS;
+DATAEOF
+
+cat >> "$KANBAN_OUTPUT" << 'JSEOF'
+
+let currentFilter = 'all';
+
+// Build a map of issues fixed in later sprints
+function buildFixedIssuesMap() {
+  const fixedMap = new Map(); // key: normalized issue desc fragment → sprint number
+  HANDOFFS.forEach(ho => {
+    if (ho.previous_eval_issues_addressed?.length) {
+      ho.previous_eval_issues_addressed.forEach(addr => {
+        const desc = typeof addr === 'string' ? addr : (addr.issue || addr.description || '');
+        if (desc) fixedMap.set(desc.toLowerCase().substring(0, 80), ho.sprint);
+      });
+    }
+  });
+  return fixedMap;
+}
+
+function isIssueFixed(issueDesc, fixedMap) {
+  const normalized = issueDesc.toLowerCase();
+  for (const [key, sprint] of fixedMap) {
+    // Check if enough words overlap between the issue and the fix description
+    const keyWords = key.split(/\s+/).filter(w => w.length > 4);
+    const issueWords = normalized.split(/\s+/).filter(w => w.length > 4);
+    const overlap = keyWords.filter(w => issueWords.includes(w)).length;
+    if (overlap >= 3) return sprint;
+  }
+  return null;
+}
+
+function setFilter(filter, el) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+  if (el) el.classList.add('active');
+  else document.querySelector(`.filter-pill[onclick*="'${filter}'"]`)?.classList.add('active');
+  renderBoard();
+}
+
+function renderSummary() {
+  const el = document.getElementById('summary');
+  const totalDCs = EVALS.reduce((sum, ev) => sum + (ev.done_conditions_results?.length || 0), 0);
+  const passedDCs = EVALS.reduce((sum, ev) => sum + (ev.done_conditions_results?.filter(d => d.pass).length || 0), 0);
+  const totalIssues = EVALS.reduce((sum, ev) => sum + (ev.issues?.length || 0), 0);
+  const avgScore = EVALS.length ? (EVALS.reduce((sum, ev) => sum + ev.average, 0) / EVALS.length).toFixed(1) : '—';
+
+  el.innerHTML = `
+    <div class="summary-card"><div class="s-label">Done Conditions</div><div class="s-value">${passedDCs}<span style="color:var(--fg3);font-size:16px">/${totalDCs}</span></div></div>
+    <div class="summary-card"><div class="s-label">Pass Rate</div><div class="s-value" style="color:var(--green)">${totalDCs ? Math.round(passedDCs/totalDCs*100) : 0}%</div></div>
+    <div class="summary-card"><div class="s-label">Total Issues</div><div class="s-value" style="color:var(--yellow)">${totalIssues}</div></div>
+    <div class="summary-card"><div class="s-label">Avg Score</div><div class="s-value" style="color:var(--accent)">${avgScore}</div></div>
+  `;
+}
+
+function renderBoard() {
+  const board = document.getElementById('board');
+  const fixedMap = buildFixedIssuesMap();
+  let html = '';
+
+  EVALS.forEach((ev, idx) => {
+    const ho = HANDOFFS[idx];
+    const sprintNum = ev.sprint;
+    const dcs = ev.done_conditions_results || [];
+    const issues = ev.issues || [];
+    const passCount = dcs.filter(d => d.pass).length;
+
+    html += '<div class="column">';
+
+    // Column header
+    html += `<div class="col-header">`;
+    html += `<div class="col-title"><span class="sprint-num">S${sprintNum}</span> ${META.sprints?.[idx]?.title || 'Sprint ' + sprintNum}</div>`;
+    html += `<div class="col-stats">`;
+    html += `<span>DCs: <span class="stat-val">${passCount}/${dcs.length}</span></span>`;
+    html += `<span>Issues: <span class="stat-val">${issues.length}</span></span>`;
+    html += `<span>Score: <span class="stat-val" style="color:${ev.pass ? 'var(--green)' : 'var(--red)'}">${ev.average.toFixed(1)}</span></span>`;
+    html += `</div></div>`;
+
+    html += '<div class="col-body">';
+
+    // DC cards
+    const showDCs = currentFilter === 'all' || currentFilter === 'dc-pass' || currentFilter === 'dc-fail';
+    if (showDCs && dcs.length) {
+      html += '<div class="swim-label">Done Conditions</div>';
+      dcs.forEach((dc, di) => {
+        if (currentFilter === 'dc-pass' && !dc.pass) return;
+        if (currentFilter === 'dc-fail' && dc.pass) return;
+
+        const passClass = dc.pass ? 'pass' : 'fail';
+        const cardId = `dc-${sprintNum}-${di}`;
+
+        // Check generator self-report
+        const genDc = ho?.done_conditions?.find(d => d.id === dc.id);
+        const genStatus = genDc?.status || '';
+        const mismatch = genStatus === 'complete' && !dc.pass;
+
+        html += `<div class="card ${passClass}" onclick="toggleDetail('${cardId}')">`;
+        html += `<div class="card-top"><span class="card-id">${dc.id}</span><span class="card-badge ${passClass}">${dc.pass ? 'PASS' : 'FAIL'}</span></div>`;
+        html += `<div class="card-desc">${dc.description}</div>`;
+        if (mismatch) {
+          html += `<div class="card-tags"><span class="card-tag" style="border-color:var(--red);color:var(--red)">Gen said: complete</span></div>`;
+        }
+        // Detail
+        html += `<div class="card-detail" id="${cardId}">`;
+        if (dc.notes) html += `<div class="detail-label">Evaluator Notes</div><div>${dc.notes}</div>`;
+        if (genDc?.notes) html += `<div class="detail-label">Generator Notes</div><div>${genDc.notes}</div>`;
+        html += `</div></div>`;
+      });
+    }
+
+    // Issue cards
+    const showIssues = currentFilter === 'all' || currentFilter === 'issues';
+    if (showIssues && issues.length) {
+      html += '<div class="swim-label">Issues Found</div>';
+      const sorted = [...issues].sort((a, b) => {
+        const ord = { high: 0, medium: 1, low: 2 };
+        return (ord[a.severity] || 3) - (ord[b.severity] || 3);
+      });
+      sorted.forEach((issue, ii) => {
+        const sevClass = 'issue-' + issue.severity;
+        const cardId = `issue-${sprintNum}-${ii}`;
+        const fixedIn = isIssueFixed(issue.description, fixedMap);
+
+        html += `<div class="card ${sevClass}" onclick="toggleDetail('${cardId}')">`;
+        html += `<div class="card-top"><span class="card-badge severity-${issue.severity}">${issue.severity}</span>`;
+        if (fixedIn) html += `<span class="card-badge fixed">Fixed in S${fixedIn}</span>`;
+        html += `</div>`;
+        html += `<div class="card-desc">${issue.description}</div>`;
+        html += `<div class="card-tags"><span class="card-tag">${issue.category}</span></div>`;
+        // Detail
+        html += `<div class="card-detail" id="${cardId}">`;
+        if (issue.fix_suggestion) html += `<div class="detail-label">Fix Suggestion</div><div class="fix-text">${issue.fix_suggestion}</div>`;
+        if (issue.screenshot) {
+          const name = issue.screenshot.split('/').pop();
+          if (SCREENSHOTS[name]) {
+            html += `<img src="${SCREENSHOTS[name]}" alt="${name}" onclick="event.stopPropagation(); openLightbox('${name}')" loading="lazy">`;
+          }
+        }
+        html += `</div></div>`;
+      });
+    }
+
+    html += '</div></div>';
+  });
+
+  board.innerHTML = html;
+}
+
+function toggleDetail(id) {
+  const el = document.getElementById(id);
+  if (el) el.classList.toggle('open');
+}
+
+function openLightbox(name) {
+  const lb = document.getElementById('lightbox');
+  document.getElementById('lightbox-img').src = SCREENSHOTS[name];
+  lb.classList.add('open');
+}
+
+// Init
+renderSummary();
+renderBoard();
+</script>
+</body>
+</html>
+JSEOF
+
+echo "Kanban generated at: $KANBAN_OUTPUT"
 echo "Report generated at: $OUTPUT"
 echo "Open with: open $OUTPUT"
