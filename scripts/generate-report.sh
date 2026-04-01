@@ -140,10 +140,13 @@ cat > "$OUTPUT" << 'HTMLEOF'
   .score-card .bar { height: 4px; background: var(--bg3); border-radius: 2px; margin-top: 8px; overflow: hidden; }
   .score-card .bar-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
 
-  /* Tooltips */
+  /* Tooltips — default: above */
   [data-tip] { position: relative; cursor: help; }
   [data-tip]:hover::after { content: attr(data-tip); position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 8px 12px; border-radius: 6px; font-size: 11px; line-height: 1.5; white-space: normal; width: max-content; max-width: 260px; z-index: 300; pointer-events: none; box-shadow: 0 4px 12px rgba(0,0,0,0.4); text-transform: none; letter-spacing: 0; font-weight: 400; text-align: left; }
   [data-tip]:hover::before { content: ''; position: absolute; bottom: calc(100% + 2px); left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--fg); z-index: 300; pointer-events: none; }
+  /* Tooltips inside drawer: below the card, not clipped */
+  .drawer-body [data-tip]:hover::after { bottom: auto; top: calc(100% + 8px); }
+  .drawer-body [data-tip]:hover::before { bottom: auto; top: calc(100% + 2px); border-top-color: transparent; border-bottom-color: var(--fg); }
 
   /* Done conditions */
   .section { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
