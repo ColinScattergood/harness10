@@ -50,4 +50,36 @@ Produce a product spec following the template in `templates/product-spec.md`. Th
 
 ## Output Format
 
-Write the full spec as markdown, ending with a fenced JSON metadata block. Write the spec to `artifacts/specs/current-spec.md` and the JSON metadata to `artifacts/specs/current-meta.json`.
+Write the full spec as markdown, ending with a fenced JSON metadata block. Write these files:
+
+1. `artifacts/specs/current-spec.md` — the full product specification
+2. `artifacts/specs/current-meta.json` — the JSON metadata block
+
+3. **Sprint contract files** — For EACH sprint, write a contract file to `artifacts/contracts/web-sprint-{N}.json` AND `artifacts/contracts/ios-sprint-{N}.json`. Each contract must follow this exact schema:
+
+```json
+{
+  "sprint_number": 1,
+  "platform": "web",
+  "title": "Sprint title",
+  "scope": "What gets built in this sprint",
+  "done_conditions": [
+    {
+      "id": "DC-001",
+      "description": "Testable condition an automated QA agent can verify",
+      "testable": true,
+      "test_steps": "Step-by-step instructions for the evaluator to test this"
+    }
+  ],
+  "out_of_scope": ["Things explicitly NOT in this sprint"],
+  "dependencies": ["Prerequisites"],
+  "estimated_complexity": 2
+}
+```
+
+The done conditions are CRITICAL — they become the evaluator's test plan. Each one must be:
+- Specific enough to verify by interacting with the running app
+- Include concrete test_steps (navigate to X, click Y, verify Z)
+- Phrased as user-observable behavior, not implementation details
+
+Even for complexity 1-2, write contract files for the single sprint.

@@ -35,7 +35,19 @@ check_budget() {
 }
 
 # Extract cost from claude --print --output-format json response
+# The actual field is "total_cost_usd" (verified against claude 2.1.x)
 extract_cost() {
   local json_output="$1"
-  echo "$json_output" | jq -r '.cost_usd // .session_cost // 0' 2>/dev/null || echo "0"
+  echo "$json_output" | jq -r '.total_cost_usd // 0' 2>/dev/null || echo "0"
+}
+
+# Extract additional metadata from claude output
+extract_duration() {
+  local json_output="$1"
+  echo "$json_output" | jq -r '.duration_ms // 0' 2>/dev/null || echo "0"
+}
+
+extract_turns() {
+  local json_output="$1"
+  echo "$json_output" | jq -r '.num_turns // 0' 2>/dev/null || echo "0"
 }

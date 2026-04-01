@@ -7,6 +7,7 @@ source "$HARNESS_ROOT/config.sh"
 source "$HARNESS_ROOT/scripts/lib/budget-tracker.sh"
 source "$HARNESS_ROOT/scripts/lib/git-checkpoint.sh"
 source "$HARNESS_ROOT/scripts/lib/handoff.sh"
+source "$HARNESS_ROOT/scripts/lib/issues.sh"
 
 # ---------------------------------------------------------------------------
 # Usage
@@ -30,6 +31,12 @@ case "$PLATFORM_FILTER" in
   --ios-only) BUILD_WEB=false ;;
 esac
 
+# ---------------------------------------------------------------------------
+# Preflight
+# ---------------------------------------------------------------------------
+bash "$HARNESS_ROOT/scripts/preflight.sh" || { echo "Preflight failed. Aborting."; exit 1; }
+
+echo ""
 echo "=============================================="
 echo " HARNESS10 — Multi-Platform App Builder"
 echo "=============================================="
@@ -43,6 +50,7 @@ echo "=============================================="
 # Initialize
 # ---------------------------------------------------------------------------
 init_budget
+init_issues
 
 # Init git repo if needed
 cd "$HARNESS_ROOT"
@@ -115,8 +123,9 @@ for SPRINT in $(seq 1 "$NUM_SPRINTS"); do
       fi
     done
 
-    # Git checkpoint after generation
-    checkpoint_commit "Sprint $SPRINT generation complete (attempt $ATTEMPT)"
+    # Git checkpoint after generation (platform-scoped for parallel safety)
+    [ "$WEB_PASS" = false ] && [ "$BUILD_WEB" = true ] && platform_commit "web" "Sprint $SPRINT: web generation (attempt $ATTEMPT)"
+    [ "$IOS_PASS" = false ] && [ "$BUILD_IOS" = true ] && platform_commit "ios" "Sprint $SPRINT: ios generation (attempt $ATTEMPT)"
 
     echo ""
     echo "--- Evaluation (Sprint $SPRINT, Attempt $ATTEMPT) ---"
@@ -141,6 +150,10 @@ for SPRINT in $(seq 1 "$NUM_SPRINTS"); do
       wait "$PID" || true
     done
 
+    # Track issues across sprints
+    [ "$BUILD_WEB" = true ] && [ "$WEB_PASS" = false ] && update_issues_after_eval "web" "$SPRINT"
+    [ "$BUILD_IOS" = true ] && [ "$IOS_PASS" = false ] && update_issues_after_eval "ios" "$SPRINT"
+
     # Check verdicts
     if [ "$WEB_PASS" = false ]; then
       WEB_PASS=$(bash "$HARNESS_ROOT/scripts/04-verdict.sh" web "$SPRINT")
@@ -149,6 +162,10 @@ for SPRINT in $(seq 1 "$NUM_SPRINTS"); do
     if [ "$IOS_PASS" = false ]; then
       IOS_PASS=$(bash "$HARNESS_ROOT/scripts/04-verdict.sh" ios "$SPRINT")
     fi
+
+    # Update issues after passing too (to carry forward for next sprint)
+    [ "$BUILD_WEB" = true ] && [ "$WEB_PASS" = true ] && update_issues_after_eval "web" "$SPRINT"
+    [ "$BUILD_IOS" = true ] && [ "$IOS_PASS" = true ] && update_issues_after_eval "ios" "$SPRINT"
 
     echo ""
     echo "--- Results (Sprint $SPRINT, Attempt $ATTEMPT) ---"

@@ -7,7 +7,14 @@ USER_IDEA="$1"
 
 echo "[PLANNER] Generating product spec for: $USER_IDEA" >&2
 
-PROMPT="Create a product specification for the following app idea. Write the spec to $HARNESS_ROOT/artifacts/specs/current-spec.md and the JSON metadata to $HARNESS_ROOT/artifacts/specs/current-meta.json. The templates directory at $HARNESS_ROOT/templates/ has format examples. Working directory: $HARNESS_ROOT
+PROMPT="Create a product specification for the following app idea. Working directory: $HARNESS_ROOT
+
+Write these files:
+1. $HARNESS_ROOT/artifacts/specs/current-spec.md — full product spec
+2. $HARNESS_ROOT/artifacts/specs/current-meta.json — JSON metadata
+3. Sprint contract files: $HARNESS_ROOT/artifacts/contracts/web-sprint-{N}.json and $HARNESS_ROOT/artifacts/contracts/ios-sprint-{N}.json for each sprint
+
+The templates directory at $HARNESS_ROOT/templates/ has format examples (especially sprint-contract.json).
 
 App idea: $USER_IDEA"
 
@@ -37,4 +44,13 @@ fi
 COMPLEXITY=$(jq -r '.complexity' "$SPECS_DIR/current-meta.json")
 NUM_SPRINTS=$(jq -r '.sprints | length' "$SPECS_DIR/current-meta.json")
 
-echo "[PLANNER] Spec complete — Complexity: $COMPLEXITY, Sprints: $NUM_SPRINTS" >&2
+# Verify sprint contracts were generated
+CONTRACTS_FOUND=0
+for i in $(seq 1 "$NUM_SPRINTS"); do
+  [ -f "$CONTRACTS_DIR/web-sprint-${i}.json" ] && CONTRACTS_FOUND=$((CONTRACTS_FOUND + 1))
+  [ -f "$CONTRACTS_DIR/ios-sprint-${i}.json" ] && CONTRACTS_FOUND=$((CONTRACTS_FOUND + 1))
+done
+echo "[PLANNER] Spec complete — Complexity: $COMPLEXITY, Sprints: $NUM_SPRINTS, Contracts: $CONTRACTS_FOUND" >&2
+if [ "$CONTRACTS_FOUND" -eq 0 ]; then
+  echo "[PLANNER] WARNING: No sprint contracts generated. Generators will rely on spec only." >&2
+fi

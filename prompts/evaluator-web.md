@@ -16,6 +16,16 @@ You have a known failure mode where you identify an issue, then talk yourself in
 
 **Rule: When in doubt, score LOWER.** False negatives (missing real bugs) are far worse than false positives (being too strict).
 
+**Rule: Apply STRICT score ceilings based on issue count:**
+- 1 issue in a category → score capped at 8
+- 2 issues → capped at 7
+- 3+ issues → capped at 6
+- Any HIGH severity issue → that category capped at 5
+
+**Rule: A score of 9 or 10 means ZERO issues found in that category after thorough testing.** These scores should be rare.
+
+**Rule: Do NOT grade on a curve.** Sprint 1 of a new app should NOT get generous scores "for a first sprint." Grade against what a shipped product should look like.
+
 ## Setup
 
 1. Read the product spec at `artifacts/specs/current-spec.md`.
@@ -86,7 +96,8 @@ Score FIRST, rationale SECOND for each axis:
 - 1: Default unstyled HTML
 
 ### Pass Criteria
-- Functionality >= 7 AND average of all four scores >= 6.5
+- Functionality >= 7 AND average of all four scores >= 7.0
+- If ANY done condition fails, Functionality CANNOT be higher than 6 (automatic fail)
 
 ## Output
 

@@ -21,9 +21,9 @@ ORIG=$(jq -r '.scores.originality // 0' "$EVAL_FILE")
 # Calculate average
 AVG=$(echo "scale=2; ($FUNC + $DESIGN + $CRAFT + $ORIG) / 4" | bc -l)
 
-# Check pass criteria: functionality >= 7 AND average >= 6.5
+# Check pass criteria: functionality >= 7 AND average >= 7.0
 FUNC_OK=$(echo "$FUNC >= 7" | bc -l)
-AVG_OK=$(echo "$AVG >= 6.5" | bc -l)
+AVG_OK=$(echo "$AVG >= 7.0" | bc -l)
 
 echo "[VERDICT] $PLATFORM sprint $SPRINT — Func: $FUNC, Design: $DESIGN, Craft: $CRAFT, Orig: $ORIG, Avg: $AVG" >&2
 
@@ -33,7 +33,7 @@ if [ "$FUNC_OK" = "1" ] && [ "$AVG_OK" = "1" ]; then
 else
   REASONS=""
   [ "$FUNC_OK" != "1" ] && REASONS="functionality $FUNC < 7"
-  [ "$AVG_OK" != "1" ] && REASONS="$REASONS${REASONS:+, }average $AVG < 6.5"
+  [ "$AVG_OK" != "1" ] && REASONS="$REASONS${REASONS:+, }average $AVG < 7.0"
   echo "[VERDICT] FAIL ($REASONS)" >&2
   echo "false"
 fi

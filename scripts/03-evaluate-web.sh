@@ -3,6 +3,7 @@ set -euo pipefail
 source "$(dirname "$0")/../config.sh"
 source "$HARNESS_ROOT/scripts/lib/budget-tracker.sh"
 source "$HARNESS_ROOT/scripts/lib/handoff.sh"
+source "$HARNESS_ROOT/scripts/lib/issues.sh"
 
 SPRINT="${1:-1}"
 
@@ -39,7 +40,8 @@ Test every feature and done condition. Take screenshots. Save your evaluation re
 
 Save screenshots to: $HARNESS_ROOT/artifacts/screenshots/
 
-Remember: Score FIRST, rationale SECOND. Every issue must be reflected in the scores."
+Remember: Score FIRST, rationale SECOND. Every issue must be reflected in the scores.
+$(get_carried_issues "web" "$SPRINT")"
 
 RESULT=$(echo "$PROMPT" | "$CLAUDE_BIN" --print \
   --model "$MODEL" \

@@ -26,7 +26,9 @@ fi
 if [ "$ATTEMPT" -gt 1 ] && eval_exists "ios" "$SPRINT"; then
   PROMPT="$PROMPT
 
-PREVIOUS EVALUATION FAILED. Read the evaluation report at $(get_eval_path "ios" "$SPRINT") and fix ALL issues listed. Focus especially on issues marked severity 'high'. Do not re-implement working features — only fix what is broken."
+PREVIOUS EVALUATION FAILED. Read the evaluation report at $(get_eval_path "ios" "$SPRINT") and fix ALL issues listed. Focus especially on issues marked severity 'high'. Do not re-implement working features — only fix what is broken.
+
+The evaluator captured screenshots showing the issues. Look at the screenshot files referenced in the evaluation report (in $HARNESS_ROOT/artifacts/screenshots/) — use the Read tool to view them so you can SEE what the evaluator saw."
 fi
 
 PROMPT="$PROMPT
