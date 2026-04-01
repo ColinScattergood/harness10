@@ -105,9 +105,12 @@ cat > "$OUTPUT" << 'HTMLEOF'
   .container { max-width: 1400px; margin: 0 auto; padding: 24px; }
 
   /* Header */
-  .header { text-align: center; padding: 48px 0 32px; border-bottom: 1px solid var(--border); margin-bottom: 32px; }
-  .header h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
-  .header p { color: var(--fg2); margin-top: 8px; font-size: 14px; }
+  .header { padding: 16px 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  .header-left { display: flex; align-items: center; gap: 12px; }
+  .header h1 { font-size: 18px; font-weight: 700; }
+  .header p { color: var(--fg3); font-size: 12px; }
+  .header .nav-link { color: var(--accent); text-decoration: none; font-size: 12px; }
+  .header .nav-link:hover { text-decoration: underline; }
 
   /* Architecture diagram */
   .architecture { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 32px; margin-bottom: 32px; }
@@ -313,9 +316,11 @@ cat > "$OUTPUT" << 'HTMLEOF'
 
 <div class="container">
   <div class="header">
-    <h1>Harness10 Run Report</h1>
-    <p>Multi-agent harness: Planner → Generator → Evaluator</p>
-    <a href="report-kanban.html" style="display:inline-block;margin-top:12px;padding:8px 20px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent);font-family:inherit;font-size:12px;text-decoration:none;transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">View Kanban Board →</a>
+    <div class="header-left">
+      <h1>Harness10 Run Report</h1>
+      <p>Planner → Generator → Evaluator</p>
+    </div>
+    <a class="nav-link" href="report-kanban.html">Kanban Board →</a>
   </div>
 
   <!-- Architecture -->
