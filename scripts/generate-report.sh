@@ -951,7 +951,7 @@ function renderTrend() {
     }
     html += '</div>';
     html += `<div style="font-size:12px;color:var(--fg3)">Sprint ${ev.sprint}</div>`;
-    html += `<div style="font-size:16px;font-weight:700;color:${ev.pass ? 'var(--green)' : 'var(--red)'}">${ev.average.toFixed(1)}</div>`;
+    html += `<div style="font-size:16px;font-weight:700;color:${ev.pass ? 'var(--green)' : 'var(--red)'}">${ev.average.toFixed(1)}<span style="font-size:10px;font-weight:400;color:var(--fg3)"> /10</span></div>`;
     html += '</div>';
   });
 
